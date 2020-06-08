@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -20,6 +20,9 @@ import Cancel from '../../../../assets/cancel.svg';
 import {Button} from 'react-native-elements';
 import useJobs from './hooks/useJobs';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {useSelector, useDispatch} from 'react-redux';
+import {signalOffData} from '../../LoginScreen/Action/Action';
+import useOnesignal from '../../../../useOnesignal';
 
 const Data = [
   {
@@ -39,11 +42,13 @@ const Pending = ({Measurements}) => {
   const [id, setId] = useState();
   const [loading, pending, ongoing, GetJObs, AcceptRequest] = useJobs();
   const [segment, setSegment] = useState(false);
-  console.log(ongoing, 'yes');
+  const [notificationPush, notificationOff] = useOnesignal();
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  navigation.addListener('focus', () => {
-    GetJObs();
+  navigation.addListener('focus', async () => {
+    await GetJObs();
+    await notificationOff();
   });
 
   const handleArrived = id => {

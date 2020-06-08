@@ -78,10 +78,7 @@ const TailorHomepage = ({route}) => {
 
   useEffect(() => {
     if (signal) {
-      navigation.navigate('Requests', {
-        screen: 'Request Notification',
-        params: {user: 'jane'},
-      });
+      navigation.navigate('Requests');
     }
   }, [navigation, signal]);
 

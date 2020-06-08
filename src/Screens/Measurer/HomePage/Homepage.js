@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ import useAnalytics from '../hooks/useAnalytics';
 import Achievements from '../../../../assets/archivement.svg';
 import Accepted from '../../../../assets/accepted.svg';
 import Measurement from '../../../../assets/measurement.svg';
+import {useSelector} from 'react-redux';
 
 const Homepage = ({route}) => {
   const [visible, setVisible] = useState(false);
@@ -42,13 +43,22 @@ const Homepage = ({route}) => {
     history,
   ] = usePurse();
   const [accepted, completed, reviews, message, RunAnalytics] = useAnalytics();
+  const {userData, isLogged, playerCalled, signal} = useSelector(
+    state => state.LoginReducer,
+  );
 
   const navigation = useNavigation();
-  navigation.addListener('focus', async (e) => {
+  navigation.addListener('focus', async e => {
     // Prevent default action
     await RunAnalytics();
     await Run();
   });
+
+  useEffect(() => {
+    if (signal) {
+      navigation.navigate('Pending');
+    }
+  }, [navigation, signal]);
 
   const Data = [
     {svg: <Accepted />, value: accepted, text: 'Requests Accepted'},
@@ -131,7 +141,7 @@ const Homepage = ({route}) => {
             <Text style={styles.dueDate}>Next withdrawal due 7th April 20</Text>
           </View>
           <View style={styles.top}>
-            {Data.map((data) => {
+            {Data.map(data => {
               return (
                 <Archivment
                   img={data.svg}
@@ -156,7 +166,7 @@ const Homepage = ({route}) => {
                 />
               </View>
             </View>
-            {data.map((data) => {
+            {data.map(data => {
               return (
                 <StatsLabel
                   time={data.time}

@@ -16,7 +16,9 @@ const Drawer = createDrawerNavigator();
 
 function CompleteRoute({navigation}) {
   return (
-    <Stack.Navigator screenOptions={{headerTitleAlign: 'center'}}>
+    <Stack.Navigator
+      initialRouteName="Complete Requests"
+      screenOptions={{headerTitleAlign: 'center'}}>
       <Stack.Screen
         name="Completed Requests"
         options={{

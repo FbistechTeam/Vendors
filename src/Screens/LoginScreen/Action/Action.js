@@ -14,6 +14,7 @@ const {
   GET_TAILOR_CAT_ID,
   PLAYER_CALLED,
   ONE_SIGNAL,
+  ONE_SIGNAL_OFF,
 } = actionType;
 
 export const loginUser = payload => ({
@@ -67,5 +68,9 @@ export const callplayer = payload => ({
 });
 export const signalData = payload => ({
   type: ONE_SIGNAL,
+  payload,
+});
+export const signalOffData = payload => ({
+  type: ONE_SIGNAL_OFF,
   payload,
 });

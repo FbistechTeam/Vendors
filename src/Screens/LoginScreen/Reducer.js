@@ -15,6 +15,7 @@ const {
   GET_TAILOR_CAT_ID,
   PLAYER_CALLED,
   ONE_SIGNAL,
+  ONE_SIGNAL_OFF,
 } = actionType;
 
 const initialState = {
@@ -79,6 +80,9 @@ export const LoginReducer = (state = initialState, {type, payload}) => {
     case ONE_SIGNAL:
       return {...state, signal: true, Notification: payload};
 
+    case ONE_SIGNAL_OFF:
+      return {...state, signal: false, Notification: payload};
+
     case LOGOUT_USER:
       return {
         ...state,
@@ -89,6 +93,7 @@ export const LoginReducer = (state = initialState, {type, payload}) => {
         recovered: false,
         loading: false,
         playerCalled: false,
+        signal: false,
       };
 
     default:
