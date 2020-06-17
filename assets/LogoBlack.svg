@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="116" height="71" viewBox="0 0 116 71">
-  <g id="LogoBlack" transform="translate(-88.732 -273.701)">
-    <g id="Group_2868" data-name="Group 2868">
-      <g id="Group_2867" data-name="Group 2867">
-        <g id="Group_2866" data-name="Group 2866">
-          <g id="Group_2865" data-name="Group 2865">
-            <text id="Logo" transform="translate(146.732 325.701)" fill="#5ce3d9" font-size="48" font-family="SegoeUI-Bold, Segoe UI" font-weight="700"><tspan x="-57.621" y="0" fill="#5ce3d9">.</tspan><tspan y="0" fill="#000">Sew</tspan><tspan y="0" fill="#5ce3d9">.</tspan></text>
-          </g>
-          <text id="vendor" transform="translate(146.732 341.701)" font-size="13" font-family="SegoeUI, Segoe UI"><tspan x="-20.087" y="0">vendor</tspan></text>
-        </g>
-      </g>
-    </g>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="116" height="71" viewBox="0 0 116 71"><g id="LogoBlack" transform="translate(-88.732 -273.701)"><g id="Group_2868" data-name="Group 2868"><g id="Group_2867" data-name="Group 2867"><g id="Group_2866" data-name="Group 2866"><g id="Group_2865" data-name="Group 2865"><text id="Logo" fill="#5ce3d9" font-family="SegoeUI-Bold, Segoe UI" font-size="48" font-weight="700" transform="translate(146.732 325.701)"><tspan x="-57.621" y="0" fill="#5ce3d9">.</tspan><tspan y="0" fill="#000">Sew</tspan><tspan y="0" fill="#5ce3d9">.</tspan></text></g><text id="vendor" font-family="SegoeUI, Segoe UI" font-size="13" transform="translate(146.732 341.701)"><tspan x="-20.087" y="0">vendor</tspan></text></g></g></g></g></svg>
