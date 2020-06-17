@@ -1,13 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24.411" height="24.411" viewBox="0 0 24.411 24.411">
-  <g id="editBtn" transform="translate(-109.505 -9.92)">
-    <ellipse id="Ellipse_8" data-name="Ellipse 8" cx="12.206" cy="12.205" rx="12.206" ry="12.205" transform="translate(109.505 9.92)" opacity="0.626" fill="#000"/>
-    <g id="Group_2780" data-name="Group 2780" transform="translate(115.659 16.608)">
-      <g id="Group_2779" data-name="Group 2779" transform="translate(0 0)">
-        <g id="Group_2778" data-name="Group 2778" transform="translate(0 0)">
-          <path id="Path_1110" data-name="Path 1110" d="M0,85.5v1.187a.623.623,0,0,0,.623.623H1.809a1.484,1.484,0,0,0,1.049-.434l6.193-6.193a.741.741,0,0,0,0-1.048L7.676,78.254a.741.741,0,0,0-1.048,0L.434,84.448A1.484,1.484,0,0,0,0,85.5Z" transform="translate(0 -75.673)" fill="#fff"/>
-          <path id="Path_1111" data-name="Path 1111" d="M270.041,1.694,268.532.185a.647.647,0,0,0-.915,0l-.768.768a.586.586,0,0,0,0,.829l1.6,1.6a.586.586,0,0,0,.829,0l.768-.768A.647.647,0,0,0,270.041,1.694Z" transform="translate(-258.598 0.005)" fill="#fff"/>
-        </g>
-      </g>
-    </g>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24.411" height="24.411" viewBox="0 0 24.411 24.411"><g id="editBtn" transform="translate(-109.505 -9.92)"><ellipse id="Ellipse_8" cx="12.206" cy="12.205" fill="#000" data-name="Ellipse 8" opacity=".626" rx="12.206" ry="12.205" transform="translate(109.505 9.92)"/><g id="Group_2780" data-name="Group 2780" transform="translate(115.659 16.608)"><g id="Group_2779" data-name="Group 2779" transform="translate(0 0)"><g id="Group_2778" data-name="Group 2778" transform="translate(0 0)"><path id="Path_1110" fill="#fff" d="M0,85.5v1.187a.623.623,0,0,0,.623.623H1.809a1.484,1.484,0,0,0,1.049-.434l6.193-6.193a.741.741,0,0,0,0-1.048L7.676,78.254a.741.741,0,0,0-1.048,0L.434,84.448A1.484,1.484,0,0,0,0,85.5Z" data-name="Path 1110" transform="translate(0 -75.673)"/><path id="Path_1111" fill="#fff" d="M270.041,1.694,268.532.185a.647.647,0,0,0-.915,0l-.768.768a.586.586,0,0,0,0,.829l1.6,1.6a.586.586,0,0,0,.829,0l.768-.768A.647.647,0,0,0,270.041,1.694Z" data-name="Path 1111" transform="translate(-258.598 0.005)"/></g></g></g></g></svg>
