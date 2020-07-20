@@ -103,10 +103,12 @@ const Pending = ({Measurements}) => {
                     {/* <Text style={styles.distance}>data.distance</Text> */}
                   </View>
                   <View style={styles.map}>
-                    <Image
-                      source={require('../../../../assets/Map.png')}
-                      style={id === data.id ? styles.hide : styles.mapView}
-                    />
+                    <Text style={{color: '#fff'}}>
+                      ADDRESS:{' '}
+                      {data.user.address === null
+                        ? ' Address not available'
+                        : data.user.address}
+                    </Text>
                   </View>
                   <View style={styles.actionGroup}>
                     <TouchableOpacity>

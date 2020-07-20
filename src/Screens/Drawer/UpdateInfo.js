@@ -147,7 +147,7 @@ const UpdateInfo = () => {
         {
           headers: {
             Authorization: 'Bearer ' + access_token,
-            'Content-Type': 'multipart/form-data',
+            Accept: 'application/json',
           },
         },
       );

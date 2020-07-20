@@ -71,13 +71,13 @@ const CompletedView = ({
               }}>
               Due by {moment(Data.dead_line_date).format('YYYY-MM-DD')}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 color: '#000',
                 fontSize: heightPercentageToDP('1.5%'),
               }}>
               15,000NGN
-            </Text>
+            </Text> */}
           </View>
         </View>
 

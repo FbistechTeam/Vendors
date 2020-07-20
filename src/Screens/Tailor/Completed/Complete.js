@@ -94,7 +94,7 @@ const CompleteTailor = ({route}) => {
         textStyle={styles.spinnerTextStyle}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.sortContainer}>
+        {/* <View style={styles.sortContainer}>
           <View style={styles.sort}>
             <Sort />
             <Text style={styles.sortTxt}>Select Date</Text>
@@ -120,7 +120,7 @@ const CompleteTailor = ({route}) => {
               />
             </View>
           </View>
-        </View>
+        </View> */}
         {results.map(data => {
           return (
             <TouchableOpacity

@@ -110,11 +110,13 @@ const TailorPending = ({Measurements}) => {
               return (
                 <View key={data.id} style={styles.TopView}>
                   <View
-                    style={{
-                      borderBottomColor: '#fff',
-                      borderBottomWidth: 0.5,
-                    }}>
-                    <View
+                    style={
+                      {
+                        // borderBottomColor: '#fff',
+                        // borderBottomWidth: 0.5,
+                      }
+                    }>
+                    {/* <View
                       style={{
                         justifyContent: 'space-between',
                         flexDirection: 'row',
@@ -179,7 +181,7 @@ const TailorPending = ({Measurements}) => {
                           <Cancel /> cancel
                         </Text>
                       </TouchableOpacity>
-                    </View>
+                    </View> */}
                   </View>
 
                   <View style={styles.reqTop}>
@@ -202,7 +204,7 @@ const TailorPending = ({Measurements}) => {
                       <Text style={styles.distance}>6 yards</Text>
                     </View>
                   </View>
-                  <View style={styles.actionGroup}>
+                  {/* <View style={styles.actionGroup}>
                     <TouchableOpacity>
                       <Text style={styles.actions}>
                         <Call /> Call
@@ -213,7 +215,7 @@ const TailorPending = ({Measurements}) => {
                         <Message /> Message
                       </Text>
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
                   <View
                     style={{
                       justifyContent: 'space-between',
@@ -247,11 +249,13 @@ const TailorPending = ({Measurements}) => {
               return (
                 <View key={data.id} style={styles.TopView}>
                   <View
-                    style={{
-                      borderBottomColor: '#fff',
-                      borderBottomWidth: 0.5,
-                    }}>
-                    <View
+                    style={
+                      {
+                        // borderBottomColor: '#fff',
+                        // borderBottomWidth: 0.5,
+                      }
+                    }>
+                    {/* <View
                       style={{
                         justifyContent: 'space-between',
                         flexDirection: 'row',
@@ -299,8 +303,8 @@ const TailorPending = ({Measurements}) => {
                           {data.total_amount}NGN
                         </Text>
                       </View>
-                    </View>
-                    <View style={styles.actionGroup}>
+                    </View> */}
+                    {/* <View style={styles.actionGroup}>
                       <TouchableOpacity>
                         <Text style={styles.actions}>
                           <Call /> Call
@@ -316,7 +320,7 @@ const TailorPending = ({Measurements}) => {
                           <Cancel /> cancel
                         </Text>
                       </TouchableOpacity>
-                    </View>
+                    </View> */}
                   </View>
 
                   <View style={styles.reqTop}>
@@ -339,7 +343,7 @@ const TailorPending = ({Measurements}) => {
                       <Text style={styles.distance}>{data.size}6 yards</Text>
                     </View>
                   </View>
-                  <View style={styles.actionGroup}>
+                  {/* <View style={styles.actionGroup}>
                     <TouchableOpacity>
                       <Text style={styles.actions}>
                         <Call /> Call
@@ -350,7 +354,7 @@ const TailorPending = ({Measurements}) => {
                         <Message /> Message
                       </Text>
                     </TouchableOpacity>
-                  </View>
+                  </View> */}
                   <View
                     style={{
                       justifyContent: 'space-between',

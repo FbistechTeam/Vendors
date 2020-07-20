@@ -28,10 +28,12 @@ import Achievements from '../../../../assets/archivement.svg';
 import Accepted from '../../../../assets/accepted.svg';
 import Measurement from '../../../../assets/measurement.svg';
 import {useSelector} from 'react-redux';
+import useProfile from '../../generalHooks/useProfile';
 
 const Homepage = ({route}) => {
   const [visible, setVisible] = useState(false);
   const [switchValue, setSwitchValue] = useState(false);
+  const [name, setName] = useState('');
   const [
     loadingP,
     Run,
@@ -43,16 +45,33 @@ const Homepage = ({route}) => {
     history,
   ] = usePurse();
   const [accepted, completed, reviews, message, RunAnalytics] = useAnalytics();
+  const [
+    loading,
+    setLoading,
+    online,
+    profile,
+    getProfile,
+    updateProfile,
+    updatePassword,
+    password,
+    setPassword,
+  ] = useProfile();
   const {userData, isLogged, playerCalled, signal} = useSelector(
     state => state.LoginReducer,
   );
-
   const navigation = useNavigation();
   navigation.addListener('focus', async e => {
     // Prevent default action
     await RunAnalytics();
     await Run();
+    await getProfile();
   });
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: <Text>Hello {profile.first_name}</Text>,
+    });
+  }, [navigation, profile.first_name]);
 
   useEffect(() => {
     if (signal) {

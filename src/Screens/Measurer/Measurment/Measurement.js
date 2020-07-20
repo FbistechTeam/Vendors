@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
+  Keyboard,
 } from 'react-native';
 import {Header, Divider} from 'react-native-elements';
 import {
@@ -83,6 +84,7 @@ const MeasurementModal = ({route}) => {
   };
   ///////////////// add measurment /////////////////
   const handleAdd = () => {
+    Keyboard.dismiss();
     setNameStyleVisible(true);
   };
 
@@ -207,8 +209,9 @@ const MeasurementModal = ({route}) => {
           </View>
           <Button
             style={styles.btn}
-            onPress={() => {
-              AddMesurement(measurement);
+            onPress={async () => {
+              await Keyboard.dismiss();
+              await AddMesurement(measurement);
             }}>
             <Text style={styles.btnTxt}>Save</Text>
           </Button>

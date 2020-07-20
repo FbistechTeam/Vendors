@@ -31,6 +31,11 @@ const MaterialView = ({
   let styleImage = {
     uri: `${Data.style.img_url}`,
   };
+  let fabricImage = {
+    uri: `${Data.fabric.img_url}`,
+  };
+
+  console.log(Data);
   // let styleImage2 = ;
 
   return (
@@ -74,13 +79,13 @@ const MaterialView = ({
               }}>
               Due by {moment(Data.dead_line_date).format('YYYY-MM-DD')}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 color: '#000',
                 fontSize: heightPercentageToDP('1.5%'),
               }}>
               15,000NGN
-            </Text>
+            </Text> */}
           </View>
         </View>
 
@@ -96,11 +101,15 @@ const MaterialView = ({
 
           <Text style={styles.ref}>Material</Text>
           <View style={styles.MaterialContainer}>
-            <View style={styles.blub} />
+            <Image
+              source={fabricImage}
+              style={styles.blub}
+              resizeMode="contain"
+            />
             <View>
               <Text style={styles.blubText}>{Data.fabric.title}</Text>
               <Text style={styles.blubTxt}>{Data.fabric.approval}</Text>
-              <Text style={styles.blubTxt}>6 Yards</Text>
+              {/* <Text style={styles.blubTxt}>6 Yards</Text> */}
             </View>
           </View>
         </ScrollView>

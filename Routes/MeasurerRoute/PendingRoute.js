@@ -15,7 +15,9 @@ const Drawer = createDrawerNavigator();
 
 function PendingRoute({navigation}) {
   return (
-    <Stack.Navigator screenOptions={{headerTitleAlign: 'center'}}>
+    <Stack.Navigator
+      initialRouteName="Pending Requests"
+      screenOptions={{headerTitleAlign: 'center'}}>
       <Stack.Screen
         name="Pending Requests"
         options={{

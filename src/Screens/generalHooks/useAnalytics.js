@@ -65,6 +65,7 @@ export default () => {
           },
         },
       );
+      console.log(requestReviews);
       let s3 = requestReviews.data.status;
       let m3 = requestReviews.data.message;
       if (s3) {

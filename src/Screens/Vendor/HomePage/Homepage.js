@@ -36,6 +36,7 @@ import Accepted from '../../../../assets/VendorRequest.svg';
 import Measurement from '../../../../assets/accepted.svg';
 import EditModal from './editModal';
 import {useNavigation} from '@react-navigation/native';
+import useProfile from '../../generalHooks/useProfile';
 
 const VendorHomepage = ({route}) => {
   const [visible, setVisible] = useState(false);
@@ -58,6 +59,17 @@ const VendorHomepage = ({route}) => {
     history,
     msg,
   ] = usePurse();
+  const [
+    loading,
+    setLoading,
+    online,
+    profile,
+    getProfile,
+    updateProfile,
+    updatePassword,
+    password,
+    setPassword,
+  ] = useProfile();
   const [Analytics, Achievements, completed, reviews, message] = useAnalytics();
 
   const navigation = useNavigation();
@@ -65,7 +77,13 @@ const VendorHomepage = ({route}) => {
     // Prevent default action
     await Run();
     await Analytics();
+    await getProfile();
   });
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: <Text>Hello {profile.first_name}</Text>,
+    });
+  }, [navigation, profile.first_name]);
 
   const data = [
     {
@@ -136,9 +154,9 @@ const VendorHomepage = ({route}) => {
                   {purse.length <= 0 ? '0' : purse.current_balance}
                   <Text style={styles.amts}>NGN</Text>
                 </Text>
-                <Text style={styles.dueDate}>
+                {/* <Text style={styles.dueDate}>
                   Next withdrawal due 7th April 20
-                </Text>
+                </Text> */}
               </View>
             )}
           </View>

@@ -36,7 +36,7 @@ import Achievements from '../../../../assets/archivement.svg';
 import Accepted from '../../../../assets/VendorRequest.svg';
 import Measurement from '../../../../assets/accepted.svg';
 import {useNavigation} from '@react-navigation/native';
-
+import moment from 'moment';
 const TailorHomepage = ({route}) => {
   const [visible, setVisible] = useState(false);
   const [add, setAdd] = useState(false);
@@ -51,6 +51,7 @@ const TailorHomepage = ({route}) => {
     styled,
     RunVendorHome,
   ] = useVendorHome();
+
   const [accepted, completed, reviews, message, RunAnalytics] = useAnalytics();
   const [
     loadingP,
@@ -65,15 +66,20 @@ const TailorHomepage = ({route}) => {
   const {userData, isLogged, playerCalled, signal} = useSelector(
     state => state.LoginReducer,
   );
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: <Text>Hello {profile.first_name}</Text>,
+    });
+  }, [navigation, profile.first_name]);
 
   const Data = [
     {svg: <Accepted />, value: accepted, text: 'Requests Accepted'},
     {
       svg: <Measurement />,
       value: completed,
-      text: 'Materials Delivered (89.5%)',
+      text: 'Materials Delivered',
     },
-    {svg: <Achievements />, value: 103, text: 'Achievements Unlocked'},
+    // {svg: <Achievements />, value: 103, text: 'Achievements Unlocked'},
   ];
 
   useEffect(() => {
@@ -210,7 +216,7 @@ const TailorHomepage = ({route}) => {
               {purse.current_balance}
               <Text style={online ? styles.amts : styles.amtsgrey}>NGN</Text>
             </Text>
-            <Text style={styles.dueDate}>Next withdrawal due 7th April 20</Text>
+            {/* <Text style={styles.dueDate}>Next withdrawal due 7th April 20</Text> */}
           </View>
           <View style={styles.top}>
             {Data.map(data => {
@@ -243,24 +249,24 @@ const TailorHomepage = ({route}) => {
             {reviews.length <= 0 ? (
               <Text style={styles.msg}>{message}</Text>
             ) : (
-              <ActivityIndicator />
+              <Text>{''}</Text>
             )}
             {reviews.length > 0 &&
-              data.map(data => {
+              reviews.map(data => {
                 return (
                   <StatsLabel
-                    key={data.date}
-                    time={data.time}
-                    day={data.feedback}
-                    title={data.name}
-                    rating={data.rate}
+                    key={data.rating_date}
+                    time={`${moment(data.rating_date).format('YYYY-MM-DD')}`}
+                    // day={data.remarks}
+                    title={data.user}
+                    rating={data.rating_score}
                   />
                 );
               })}
           </View>
           <View style={styles.materialContainer}>
             <View style={styles.materialContainerTop}>
-              <Text style={styles.materialContainerTxt}>Gallary</Text>
+              <Text style={styles.materialContainerTxt}>Gallery</Text>
               <TouchableOpacity
                 onPress={() => {
                   setAdd(true);
