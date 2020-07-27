@@ -5,6 +5,7 @@ import ImagePicker from 'react-native-image-picker';
 import Instance from '../../../Api/Instance';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import {Toast} from 'native-base';
+import useApi from '../../../Api/useApi';
 
 export default () => {
   const [results, setResults] = useState([]);
@@ -22,6 +23,7 @@ export default () => {
   );
   let {access_token} = userData;
 
+  const [HandleRequest] = useApi();
   const Style = {
     width: widthPercentageToDP('88%'),
     alignSelf: 'center',
@@ -33,24 +35,22 @@ export default () => {
     setLoading(true);
     setResultsData([]);
     try {
-      const response = await Instance.get(
+      const response = HandleRequest(
         `vendors/tailor/jobs/${job_id}/details?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setResultsData(response.data.data);
-        setOpenCarousel(true);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        setReqMessage(m);
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsData(data.data);
+          setOpenCarousel(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setReqMessage(m);
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -58,45 +58,43 @@ export default () => {
   };
 
   /**to trigger a project to completion */
+
   const CompleteRequest = async job_id => {
     setLoading(true);
     const dataId = {job_id};
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/tailor/jobs/trigger-completion?provider=vendor',
+        'put',
         dataId,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      console.log(response);
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-        run();
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-        run();
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -108,33 +106,29 @@ export default () => {
     setLoading(true);
     const dataId = {job_id};
     try {
-      const response = await Instance.get(
-        'vendors/tailor/jobs/:job_id/details?provider=vendor',
-        dataId,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+      const response = HandleRequest(
+        `vendors/tailor/jobs/${job_id}/details?provider=vendor`,
+        'get',
       );
-      console.log(response);
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setResults(response.data.data);
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResults(data.data);
 
-        setLoading(false);
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -145,54 +139,50 @@ export default () => {
     setLoading(true);
     /**get all pending requests */
     try {
-      const response = await Instance.get(
-        `vendors/tailor/jobs/pending?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+      const response = HandleRequest(
+        'vendors/tailor/jobs/pending?provider=vendor',
+        'get',
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setLoading(false);
-        let d = response.data.data;
-        setResults(d);
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          let d = data.data;
+          setResults(d);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
     }
 
     try {
-      const response = await Instance.get(
+      const response = HandleRequest(
         `vendors/tailor/jobs/ongoing?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setResultsOngoing(response.data.data);
-        setStatus1(s);
-      } else {
-        setStatus1(s);
-        setMessage(m);
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsOngoing(data.data);
+          setStatus1(s);
+        } else {
+          setStatus1(s);
+          setMessage(m);
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -204,41 +194,38 @@ export default () => {
     setLoading(true);
     const dataId = {job_id};
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/tailor/jobs/accept?provider=vendor',
+        'put',
         dataId,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      console.log(response);
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-        run();
-        setLoading(false);
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-        run();
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);

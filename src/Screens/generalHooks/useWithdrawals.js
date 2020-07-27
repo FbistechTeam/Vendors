@@ -5,11 +5,14 @@ import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Instance from '../../Api/Instance';
+import useApi from '../../Api/useApi';
 
 export default () => {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState([]);
   const [currentBank, setCurrentBank] = useState([]);
+
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -20,24 +23,16 @@ export default () => {
     borderRadius: 6,
   };
   /**set withrawal options */
-  const withrawalOption = data => {
+  const withrawalOption = dataA => {
     setLoading(true);
-    const request = new Promise(res => {
-      console.log('you');
-      res(
-        Instance.put(
-          'vendors/withdrawals/options/set?provider=vendor',
-          {option_id: data},
-          {
-            headers: {
-              Authorization: 'Bearer ' + access_token,
-            },
-          },
-        ),
-      );
-    });
+    let Data = {option_id: dataA};
+    const request = HandleRequest(
+      'vendors/withdrawals/options/set?provider=vendor',
+      'put',
+      Data,
+    );
     request
-      .then(({data: data}) => {
+      .then(data => {
         setLoading(false);
         let s = data.status;
         let m = data.message;
@@ -62,35 +57,32 @@ export default () => {
   const Details = async () => {
     setLoading(true);
     try {
-      const response = await Instance.get(
+      const response = HandleRequest(
         `vendors/withdrawals/options?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setOptions(response.data.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
-      //**gets ongoing projects */
-      const response2 = await Instance.get('vendors/banks?provider=vendor', {
-        headers: {
-          Authorization: 'Bearer ' + access_token,
-        },
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setOptions(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
       });
-      let s2 = response2.data.status;
-      let m2 = response2.data.message;
-      if (s2) {
-        setCurrentBank(response2.data.data);
-      } else {
-        setLoading(false);
-      }
+
+      //**gets ongoing projects */
+      const response2 = HandleRequest('vendors/banks?provider=vendor', 'get');
+      response2.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCurrentBank(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
     } catch (err) {
       // setErrorMessage('Something went wrong');
       setLoading(false);

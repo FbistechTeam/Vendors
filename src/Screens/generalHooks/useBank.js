@@ -3,6 +3,7 @@ import {useSelector} from 'react-redux';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Instance from '../../Api/Instance';
+import useApi from '../../Api/useApi';
 
 export default () => {
   const [Bank, setBank] = useState([]);
@@ -12,6 +13,8 @@ export default () => {
   const [bvnModalVisible, setBvnModalVisible] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
+
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -28,42 +31,39 @@ export default () => {
     setLoading(true);
     let data = {bvn: bvn};
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/banks/bvn/update?provider=vendor',
+        'put',
         data,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        // setResults(response.data.data);
-        setLoading(false);
-        setBvnModalVisible(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-      } else {
-        setLoading(false);
-        // setReqMessage(m);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'bottom',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          // setResults(response.data.data);
+          setLoading(false);
+          setBvnModalVisible(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'bottom',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -84,7 +84,6 @@ export default () => {
           data: {vendor_bank_id: id},
         },
       );
-      console.log(response);
       let s = response.data.status;
       let m = response.data.message;
       if (s) {
@@ -124,43 +123,40 @@ export default () => {
   const AddBank = async bankData => {
     setLoading(true);
     try {
-      const response = await Instance.post(
+      const response = HandleRequest(
         'vendors/banks/add?provider=vendor',
+        'post',
         bankData,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        // setResults(response.data.data);
-        setModalVisible(false);
-        setLoading(false);
-        reload();
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-      } else {
-        setLoading(false);
-        // setReqMessage(m);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          // setResults(response.data.data);
+          setModalVisible(false);
+          setLoading(false);
+          reload();
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -169,39 +165,37 @@ export default () => {
   const setDefault = async bankData => {
     setLoading(true);
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/banks/set-default?provider=vendor',
+        'put',
         bankData,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'bottom',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-      } else {
-        setLoading(false);
-        // setReqMessage(m);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -210,16 +204,12 @@ export default () => {
 
   /**to  reloadbanks after adding */
   const reload = () => {
-    const requestMyBanks = new Promise(res => {
-      res(
-        Instance.get('vendors/banks?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
-    });
-    requestMyBanks.then(({data: data}) => {
+    const requestMyBanks = HandleRequest(
+      'vendors/banks?provider=vendor',
+      'get',
+    );
+
+    requestMyBanks.then(data => {
       let s = data.status;
       let m = data.message;
       if (s) {
@@ -243,18 +233,9 @@ export default () => {
   const Run = () => {
     setLoading(true);
     /**get sall banks */
-    const request = new Promise(res => {
-      res(
-        Instance.get('banks?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-            // 'Retry-After': 360000,
-          },
-        }),
-      );
-    });
+    const request = HandleRequest('banks?provider=vendor', 'get');
     request
-      .then(({data: data}) => {
+      .then(data => {
         let p = data.data;
         setBank(data.data);
       })
@@ -263,17 +244,12 @@ export default () => {
       });
 
     //**gets user added banks */
-    const requestMyBanks = new Promise(res => {
-      res(
-        Instance.get('vendors/banks?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-            // 'Retry-After': ,
-          },
-        }),
-      );
-    });
-    requestMyBanks.then(({data: data}) => {
+    const requestMyBanks = HandleRequest(
+      'vendors/banks?provider=vendor',
+      'get',
+    );
+
+    requestMyBanks.then(data => {
       let s = data.status;
       let m = data.message;
       if (s) {

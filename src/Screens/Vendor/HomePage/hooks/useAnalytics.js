@@ -5,6 +5,7 @@ import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Instance from '../../../../Api/Instance';
+import useApi from '../../../../Api/useApi';
 
 export default () => {
   const [Achievements, setAchievements] = useState([]);
@@ -12,6 +13,7 @@ export default () => {
   const [reviews, setReviews] = useState([]);
   const [message, setMessage] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -25,53 +27,35 @@ export default () => {
   const Analytics = async () => {
     setLoading(true);
     try {
-      const request = await Instance.get(
-        `vendors/retailer/analytics/achievements?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+      const request = HandleRequest(
+        'vendors/retailer/analytics/achievements?provider=vendor',
+        'get',
       );
-      let s = request.data.status;
-      let m = request.data.message;
-      if (s) {
-        setAchievements(request.data.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+      request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setAchievements(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+
       //**gets ongoing projects */
-      const requestCompleted = await Instance.get(
+      const requestCompleted = HandleRequest(
         'vendors/retailer/analytics/sold_out?provider=vendor',
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-      let s2 = requestCompleted.data.status;
-      let m2 = requestCompleted.data.message;
-      if (s2) {
-        setCompleted(requestCompleted.data.data);
-      } else {
-        setLoading(false);
-      }
-      const requestReviews = await Instance.get(
-        'vendors/tailor/jobs/reviews?provider=vendor',
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
-      );
-      let s3 = requestReviews.data.status;
-      let m3 = requestReviews.data.message;
-      if (s3) {
-        setCompleted(requestReviews.data.data);
-      } else {
-        setLoading(false);
-      }
+      requestCompleted.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCompleted(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
     } catch (err) {
       // setErrorMessage('Something went wrong');
       setLoading(false);

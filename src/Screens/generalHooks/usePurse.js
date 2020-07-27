@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
-import Instance from '../../Api/Instance';
+import useApi from '../../Api/useApi';
 
 export default () => {
   const [purse, setPurse] = useState([]);
@@ -11,6 +11,7 @@ export default () => {
   const [pendingR, setPending] = useState([]);
   const [history, setHistory] = useState([]);
   const [msg, setMsg] = useState('');
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -21,23 +22,17 @@ export default () => {
     borderRadius: 6,
   };
 
-  const withrawalRequest = data => {
+  const withrawalRequest = amount => {
     setLoading(true);
-    const request = new Promise(res => {
-      res(
-        Instance.post(
-          'vendors/withdrawals/request?provider=vendor',
-          {amount: data},
-          {
-            headers: {
-              Authorization: 'Bearer ' + access_token,
-            },
-          },
-        ),
-      );
-    });
+    let Data = {amount};
+    const request = HandleRequest(
+      'vendors/withdrawals/request?provider=vendor',
+      'post',
+      Data,
+    );
+
     request
-      .then(({data: data}) => {
+      .then(data => {
         setLoading(false);
 
         let s = data.status;
@@ -73,16 +68,9 @@ export default () => {
   const Run = () => {
     setLoading(true);
     /**gets user purse */
-    const request = new Promise(res => {
-      res(
-        Instance.get('vendors/purse?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
-    });
-    request.then(({data: data}) => {
+    const request = HandleRequest('vendors/purse?provider=vendor', 'get');
+
+    request.then(data => {
       let p = data.data;
       let s = data.status;
       let m = data.message;
@@ -102,33 +90,60 @@ export default () => {
         setLoading(false);
       }
     });
+  };
+
+  const PendHistory = () => {
     /**get pending withdrawals */
-    const requestPending = new Promise(res => {
-      res(
-        Instance.get('vendors/withdrawals/pending?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
+    const requestPending = HandleRequest(
+      'vendors/withdrawals/pending?provider=vendor',
+      'get',
+    );
+    requestPending.then(data => {
+      let p = data;
+      console.log(p);
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setPending(data.data);
+        setLoading(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        setLoading(false);
+      }
     });
-    requestPending.then(({data: data}) => {
-      let p = data.data;
-      setPending(data.data);
-    });
+  };
+  const withdrawHistory = () => {
     /**get pending withdrawals */
-    const requestHistory = new Promise(res => {
-      res(
-        Instance.get('vendors/withdrawals?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
-    });
-    requestHistory.then(({data: data}) => {
-      let p = data.data;
-      setHistory(data.data);
+    const requestHistory = HandleRequest(
+      'vendors/withdrawals?provider=vendor',
+      'get',
+    );
+
+    requestHistory.then(data => {
+      let p = data;
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setHistory(data.data);
+        setLoading(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        setLoading(false);
+      }
     });
   };
 
@@ -142,5 +157,7 @@ export default () => {
     pendingR,
     history,
     msg,
+    PendHistory,
+    withdrawHistory,
   ];
 };

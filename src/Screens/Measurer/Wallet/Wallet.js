@@ -18,6 +18,7 @@ import Ok from '../../../../assets/ok.svg';
 import usePurse from '../../generalHooks/usePurse';
 import {useNavigation} from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import moment from 'moment';
 
 const data = [
   {name: 'Sew Points', time: '34 mins ago', amount: 'N 3100'},
@@ -42,27 +43,31 @@ const Wallet = () => {
     pendingR,
     history,
     msg,
+    PendHistory,
+    withdrawHistory,
   ] = usePurse();
 
   const navigation = useNavigation();
-  navigation.addListener('focus', e => {
+  navigation.addListener('focus', async () => {
     // Prevent default action
-    Run();
+    await Run();
   });
 
   const handlePending = () => {
     setPending(true);
     setWithdrawn(false);
     setAll(false);
+    PendHistory();
   };
   const handleWithdraw = () => {
     setPending(false);
     setWithdrawn(true);
     setAll(false);
+    withdrawHistory();
   };
   const handleAll = () => {
-    setPending(false);
-    setWithdrawn(false);
+    setPending(true);
+    setWithdrawn(true);
     setAll(true);
   };
 
@@ -138,17 +143,42 @@ const Wallet = () => {
               </Text>
             </Button>
           </View>
-          <Card style={styles.card}>
-            {data.map(data => {
-              return (
-                <CardItem style={styles.cardItem}>
-                  <Text style={styles.cardName}>{data.name}</Text>
-                  <Text style={styles.cardTime}>{data.time}</Text>
-                  <Text style={styles.cardAmt}>{data.amount}</Text>
-                </CardItem>
-              );
-            })}
-          </Card>
+          {pending && (
+            <Card style={styles.card}>
+              <Text style={styles.saveBtnTxt}>Pending</Text>
+              {pendingR.map(Data => {
+                return (
+                  <CardItem style={styles.cardItem}>
+                    <Text style={styles.cardName}>{Data.amount}</Text>
+                    <Text style={styles.cardTime}>
+                      {Data.is_approved === 1 ? 'Approved' : 'Pending'}
+                    </Text>
+                    <Text style={styles.cardAmt}>
+                      {moment(Data.created_at).format('YYYY-MM-DD')}
+                    </Text>
+                  </CardItem>
+                );
+              })}
+            </Card>
+          )}
+          {withdrawn && (
+            <Card style={styles.card}>
+              <Text style={styles.saveBtnTxt}>Withdrawn</Text>
+              {history.map(Data => {
+                return (
+                  <CardItem style={styles.cardItem}>
+                    <Text style={styles.cardName}>{Data.amount}</Text>
+                    <Text style={styles.cardTime}>
+                      {Data.is_approved === 1 ? 'Approved' : 'Pending'}
+                    </Text>
+                    <Text style={styles.cardAmt}>
+                      {moment(Data.created_at).format('YYYY-MM-DD')}
+                    </Text>
+                  </CardItem>
+                );
+              })}
+            </Card>
+          )}
         </View>
       </ScrollView>
       <WalletModal
@@ -159,8 +189,7 @@ const Wallet = () => {
         }}
         Proceed={() => {
           setModalView(false);
-          // withrawalRequest(purse.current_balance);
-          withrawalRequest('100');
+          withrawalRequest(purse.current_balance);
         }}
       />
       <Modal animationType="fade" transparent={false} visible={done}>

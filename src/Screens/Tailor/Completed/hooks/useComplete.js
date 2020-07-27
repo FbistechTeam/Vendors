@@ -5,6 +5,7 @@ import ImagePicker from 'react-native-image-picker';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import {Toast} from 'native-base';
 import Instance from '../../../../Api/Instance';
+import useApi from '../../../../Api/useApi';
 
 export default () => {
   const [results, setResults] = useState([]);
@@ -20,6 +21,7 @@ export default () => {
     state => state.LoginReducer,
   );
   let {access_token} = userData;
+  const [HandleRequest] = useApi();
 
   const Style = {
     width: widthPercentageToDP('88%'),
@@ -32,24 +34,21 @@ export default () => {
     setLoading(true);
     setResultsData([]);
     try {
-      const response = await Instance.get(
+      const response = HandleRequest(
         `vendors/tailor/jobs/${job_id}/details?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        console.log(response.data.data);
-        setResultsData(response.data.data);
-        setOpenCarousel(true);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsData(data.data);
+          setOpenCarousel(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -58,17 +57,12 @@ export default () => {
 
   const run = () => {
     setLoading(true);
-    const request = new Promise(res => {
-      res(
-        Instance.get('vendors/tailor/jobs/completed?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
-    });
+    const request = HandleRequest(
+      'vendors/tailor/jobs/completed?provider=vendor',
+      'get',
+    );
     request
-      .then(({data: data}) => {
+      .then(data => {
         let s = data.status;
         let m = data.message;
         if (s) {

@@ -28,7 +28,6 @@ const CompletedModal = ({
   status,
 }) => {
   const data = User;
-  console.log(data, 'yes');
   return (
     <Modal
       animationType="slide"

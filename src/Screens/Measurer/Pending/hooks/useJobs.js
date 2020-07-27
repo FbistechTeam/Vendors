@@ -5,6 +5,7 @@ import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Instance from '../../../../Api/Instance';
+import useApi from '../../../../Api/useApi';
 
 export default () => {
   const [pending, setPending] = useState([]);
@@ -12,7 +13,7 @@ export default () => {
   const [reviews, setReviews] = useState([]);
   const [message, setMessage] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [HandleRequest] = useApi();
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
 
@@ -25,42 +26,35 @@ export default () => {
   const GetJObs = async () => {
     setLoading(true);
     try {
-      const request = await Instance.get(
+      const request = HandleRequest(
         `vendors/measurer/jobs/pending?provider=vendor`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-
-      let s = request.data.status;
-      let m = request.data.message;
-      if (s) {
-        console.log(request.data.data);
-        setPending(request.data.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
+      request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setPending(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
 
       //**gets ongoing projects */
-      const requestOngoing = await Instance.get(
+      const requestOngoing = HandleRequest(
         'vendors/measurer/jobs/ongoing?provider=vendor',
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
+        'get',
       );
-
-      let s2 = requestOngoing.data.status;
-      let m2 = requestOngoing.data.message;
-      if (s2) {
-        setOngoing(requestOngoing.data.data);
-      } else {
-        setLoading(false);
-      }
+      requestOngoing.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setOngoing(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
     } catch (err) {
       // setErrorMessage('Something went wrong');
       setLoading(false);
@@ -72,41 +66,38 @@ export default () => {
     setLoading(true);
     const dataId = {job_id};
     try {
-      const response = await Instance.put(
+      const requestOngoing = HandleRequest(
         'vendors/measurer/jobs/accept?provider=vendor',
+        'put',
         dataId,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      console.log(response);
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-        GetJObs();
-        setLoading(false);
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-        GetJObs();
-      }
+      requestOngoing.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          GetJObs();
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          GetJObs();
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);

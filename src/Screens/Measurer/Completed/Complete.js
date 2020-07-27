@@ -99,7 +99,7 @@ const Complete = ({route}) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.sortContainer}>
+        {/* <View style={styles.sortContainer}>
           <View style={styles.sort}>
             <Sort />
             <Text style={styles.sortTxt}>Select Date</Text>
@@ -125,7 +125,7 @@ const Complete = ({route}) => {
               />
             </View>
           </View>
-        </View>
+        </View> */}
         {results.map(data => {
           return (
             <TouchableOpacity

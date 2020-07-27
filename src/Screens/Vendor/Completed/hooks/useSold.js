@@ -5,12 +5,14 @@ import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import Instance from '../../../../Api/Instance';
+import useApi from '../../../../Api/useApi';
 
 export default () => {
   const [Achievements, setAchievements] = useState([]);
   const [sold, setSold] = useState([]);
   const [loadings, setLoadings] = useState(false);
   const [message, setMessage] = useState([]);
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -23,19 +25,12 @@ export default () => {
 
   const FilterByDate = date_value => {
     setLoadings(true);
-    const request = new Promise(res => {
-      res(
-        Instance.get(
-          `vendors/materials/sold-out/${date_value}/filter?provider=vendor`,
-          {
-            headers: {
-              Authorization: 'Bearer ' + access_token,
-            },
-          },
-        ),
-      );
-    });
-    request.then(({data: data}) => {
+    const request = HandleRequest(
+      `vendors/materials/sold-out/${date_value}/filter?provider=vendor`,
+      'get',
+    );
+
+    request.then(data => {
       let s = data.status;
       let m = data.message;
       if (s) {
@@ -58,17 +53,13 @@ export default () => {
 
   const RunSold = () => {
     setLoadings(true);
-    const request = new Promise(res => {
-      res(
-        Instance.get('vendors/materials/sold-out?provider=vendor', {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        }),
-      );
-    });
+    const request = HandleRequest(
+      'vendors/materials/sold-out?provider=vendor',
+      'get',
+    );
+
     request
-      .then(({data: data}) => {
+      .then(data => {
         let s = data.status;
         let m = data.message;
         if (s) {

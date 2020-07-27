@@ -1,10 +1,8 @@
 import {useState} from 'react';
 import {useSelector} from 'react-redux';
-import {PermissionsAndroid} from 'react-native';
-import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
-import Instance from '../../Api/Instance';
+import useApi from '../../Api/useApi';
 
 export default () => {
   const [styled, setStyles] = useState([]);
@@ -16,6 +14,8 @@ export default () => {
   const [password, setPassword] = useState('');
   const options = {};
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [HandleRequest] = useApi();
 
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
@@ -30,27 +30,25 @@ export default () => {
   const getProfile = async () => {
     setLoading(true);
     try {
-      const response = await Instance.get('vendors/profile?provider=vendor', {
-        headers: {
-          Authorization: 'Bearer ' + access_token,
-        },
+      const response = HandleRequest('vendors/profile?provider=vendor', 'get');
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setProfile(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
       });
-      let s = response.data.status;
-      let m = response.data.message;
-      if (s) {
-        setProfile(response.data.data);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
     } catch (err) {
       setErrorMessage('Something went wrong');
       setLoading(false);
@@ -60,41 +58,39 @@ export default () => {
   const updateProfile = async data => {
     setLoading(true);
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/profile/update?provider=vendor',
+        'put',
         data,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      let s = response.data.status;
-      let m = response.data.message;
+      response.then(Data => {
+        let s = Data.status;
+        let m = Data.message;
 
-      if (s) {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-        getProfile();
-      } else {
-        setLoading(false);
-        // setReqMessage(m);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          getProfile();
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
@@ -105,42 +101,40 @@ export default () => {
   const updatePassword = async data => {
     setLoading(true);
     try {
-      const response = await Instance.put(
+      const response = HandleRequest(
         'vendors/profile/password/update?provider=vendor',
+        'put',
         data,
-        {
-          headers: {
-            Authorization: 'Bearer ' + access_token,
-          },
-        },
       );
-      let s = response.data.status;
-      let m = response.data.message;
+      response.then(Data => {
+        let s = Data.status;
+        let m = Data.message;
 
-      if (s) {
-        setLoading(false);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'success',
-          duration: 5000,
-          style: Style,
-        });
-        setPassword(' ');
-        getProfile();
-      } else {
-        setLoading(false);
-        // setReqMessage(m);
-        Toast.show({
-          text: m,
-          buttonText: 'Okay',
-          position: 'top',
-          type: 'danger',
-          duration: 5000,
-          style: Style,
-        });
-      }
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          setPassword(' ');
+          getProfile();
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
     } catch (err) {
       //   setErrorMessage('Something went wrong');
       setLoading(false);
