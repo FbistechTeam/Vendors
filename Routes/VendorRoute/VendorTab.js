@@ -60,7 +60,7 @@ function VendorsTab() {
       <Tab.Screen name="Home" component={Vendor} />
       {/* <Tab.Screen name="Pending" component={PendingRoute} /> */}
       <Tab.Screen name="Complete" component={CompleteRoute} />
-      <Tab.Screen name="Achievements" component={ArchivementRoute} />
+      {/* <Tab.Screen name="Achievements" component={ArchivementRoute} /> */}
       <Tab.Screen name="Wallet" component={WalletRoute} />
     </Tab.Navigator>
   );

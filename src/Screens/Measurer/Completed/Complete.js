@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,9 @@ import ReportModal from './ReportModal';
 import useCompleted from './hooks/useCompleted';
 import {useNavigation} from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {Toast} from 'native-base';
+import {useSelector, useDispatch} from 'react-redux';
+import {HandleAllRequest} from '../../../Api/Instance';
 
 if (
   Platform.OS === 'android' &&
@@ -36,41 +39,21 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const Data = [
-  {
-    id: 1,
-    user: ' User098',
-    distance: '3 mins ago',
-  },
-  {
-    id: 2,
-    user: ' User097',
-    distance: '3 sec ago',
-  },
-];
-
-const Complete = ({route}) => {
+const Complete = ({navigation}) => {
   const [search, setSearch] = useState('');
   const [selectedStartDate, setSelectedStartDate] = useState('Date');
   const [editModal, setEditModal] = useState(false);
   const [reportModal, setReportModal] = useState(false);
   const [display, setDisplay] = useState(false);
+  const [propt, setPropt] = useState([]);
+  const [results, setResults] = useState([]);
+  const [CompletedModalView, setCompletedModalView] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [measurement_id, setMeasurement_id] = useState(' ');
   const [user, SetUser] = useState('');
-  const [
-    loading,
-    results,
-    getList,
-    handlePropts,
-    propt,
-    CompletedModalView,
-    setCompletedModalView,
-    status,
-    setStatus,
-  ] = useCompleted();
-  const navigation = useNavigation();
-  navigation.addListener('focus', () => {
-    getList();
-  });
+  const {userData} = useSelector(state => state.LoginReducer);
+  let {access_token} = userData;
 
   const updateSearch = search => {
     let value = search;
@@ -90,42 +73,80 @@ const Complete = ({route}) => {
     setDisplay(false);
   };
 
-  // handle completed request
-  // const handleCompletedRequest = user => {
-  //   SetUser(user);
-  //   setCompletedModalView(true);
-  // };
+  const getList = async () => {
+    setMeasurement_id(null);
+    setLoading(true);
+    try {
+      const req = HandleAllRequest(
+        'vendors/measurer/jobs/completed?provider=vendor',
+        'get',
+        access_token,
+      );
+      req.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          setResults(data.data);
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            duration: 3000,
+            type: 'danger',
+            position: 'top',
+          });
+          setLoading(false);
+        }
+      });
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  const handlePropts = async job_id => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        `vendors/measurer/jobs/${job_id}/details?provider=vendor`,
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setPropt(data.data);
+          setCompletedModalView(true);
+          setLoading(false);
+          setStatus(true);
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            duration: 3000,
+            type: 'danger',
+            position: 'top',
+          });
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      setLoading(false);
+    }
+  };
+
+  //**initiate screen */
+  const init = () => {
+    getList();
+  };
+  useEffect(() => {
+    init();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* <View style={styles.sortContainer}>
-          <View style={styles.sort}>
-            <Sort />
-            <Text style={styles.sortTxt}>Select Date</Text>
-          </View>
-          <View style={styles.sortByContainer}>
-            <View style={styles.drop}>
-              <TouchableOpacity>
-                <Text style={styles.sortTxt} onPress={drop}>
-                  {selectedStartDate}
-                </Text>
-              </TouchableOpacity>
-              <Icon
-                name={!display ? 'chevron-down' : 'chevron-up'}
-                size={15}
-                color="#000"
-                onPress={drop}
-              />
-            </View>
-            <View style={display ? '' : styles.display}>
-              <CalendarPicker
-                width={widthPercentageToDP('60%')}
-                onDateChange={onDateChange}
-              />
-            </View>
-          </View>
-        </View> */}
         {results.map(data => {
           return (
             <TouchableOpacity

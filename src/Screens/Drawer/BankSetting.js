@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,10 @@ import useBank from '../generalHooks/useBank';
 import {set} from 'react-native-reanimated';
 import {BankData} from './data';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {useSelector} from 'react-redux';
+import {HandleAllRequest} from '../../Api/Instance';
+import {Toast} from 'native-base';
+import InstanceTwo from '../../Api/InstanceTwo';
 
 const BankSettings = ({navigation, closeModal, images, Add, image}) => {
   const [frequency, setFrequency] = useState('Frequency');
@@ -35,34 +39,291 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
   const [bankDets, setBankDets] = useState('');
   const [bankData, setBankdata] = useState({});
   const [vendor_bank_id, setvendor_bank_id] = useState('');
-  const [
-    loading,
-    Run,
-    Bank,
-    AddBank,
-    currentBank,
-    setDefault,
-    reload,
-    updateBvn,
-    modalVisible,
-    setModalVisible,
-    bvnModalVisible,
-    setBvnModalVisible,
-    DeleteBank,
-    deleteModal,
-    setDeleteModal,
-    modalVisible2,
-    setModalVisible2,
-  ] = useBank();
+  const [Bank, setBank] = useState([]);
+  const [currentBank, setCurrentBank] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [bvnModalVisible, setBvnModalVisible] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const {userData} = useSelector(state => state.LoginReducer);
+  let {access_token} = userData;
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+    zIndex: 11111,
+  };
 
-  navigation.addListener('focus', e => {
+  /** Update Bvn */
+  const updateBvn = async bvn => {
+    setLoading(true);
+    let data = {
+      bvn: bvn,
+    };
+    try {
+      const response = HandleAllRequest(
+        'vendors/banks/bvn/update?provider=vendor',
+        'put',
+        access_token,
+        data,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          // setResults(response.data.data);
+          setLoading(false);
+          setBvnModalVisible(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'bottom',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  //** Delete Bank*/
+  const DeleteBank = async id => {
+    setLoading(true);
+    try {
+      const response = await InstanceTwo.delete(
+        'vendors/banks/delete?provider=vendor',
+
+        {
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+          data: {
+            vendor_bank_id: id,
+          },
+        },
+      );
+      let s = response.data.status;
+      let m = response.data.message;
+      if (s) {
+        // setResults(response.data.data);
+        setLoading(false);
+        setDeleteModal(false);
+        setModalVisible2(false);
+        reload();
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'success',
+          duration: 5000,
+          style: Style,
+        });
+      } else {
+        setLoading(false);
+        // setReqMessage(m);
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'bottom',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+      }
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      console.log(err);
+      setLoading(false);
+    }
+  };
+
+  //**Adds bank */
+  const AddBank = async bankData => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        'vendors/banks/add?provider=vendor',
+        'post',
+        access_token,
+        bankData,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          // setResults(response.data.data);
+          setModalVisible(false);
+          setLoading(false);
+          reload();
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+  const setDefault = async bankData => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        'vendors/banks/set-default?provider=vendor',
+        'put',
+        access_token,
+        bankData,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  /**to  reloadbanks after adding */
+  const reload = () => {
+    const requestMyBanks = HandleAllRequest(
+      'vendors/banks?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    requestMyBanks.then(data => {
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setCurrentBank(data.data);
+        setLoading(false);
+      } else {
+        setLoading(false);
+        // setReqMessage(m);
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+      }
+    });
+  };
+
+  const Run = () => {
+    setLoading(true);
+    /**get sall banks */
+    const request = HandleAllRequest('banks?provider=vendor', 'get');
+    request
+      .then(data => {
+        let p = data.data;
+        setBank(data.data);
+      })
+      .catch(err => {
+        console.log('first', err);
+      });
+
+    //**gets user added banks */
+    const requestMyBanks = HandleAllRequest(
+      'vendors/banks?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    requestMyBanks.then(data => {
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setCurrentBank(data.data);
+        setLoading(false);
+      } else {
+        setLoading(false);
+        // setReqMessage(m);
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+      }
+    });
+  };
+
+  const init = e => {
     // Prevent default action
     Run();
-  });
+  };
+  useEffect(() => {
+    init();
+  }, []);
 
-  const Dets = {bank_id: bankk, account_number: bankDets};
+  const Dets = {
+    bank_id: bankk,
+    account_number: bankDets,
+  };
 
-  const Dets2 = {vendor_bank_id};
+  const Dets2 = {
+    vendor_bank_id,
+  };
 
   const handleSubmit = Det => {
     AddBank(Det);
@@ -75,7 +336,10 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}>
       <Header
         placement="center"
         backgroundColor="#fff"
@@ -88,7 +352,9 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
             name="bars"
             size={30}
             color="black"
-            style={{paddingLeft: 23}}
+            style={{
+              paddingLeft: 23,
+            }}
           />
         }
         leftContainerStyle={styles.left}
@@ -101,7 +367,9 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
             name="times"
             size={25}
             color="black"
-            style={{paddingRight: 23}}
+            style={{
+              paddingRight: 23,
+            }}
           />
         }
         centerComponent={{
@@ -234,8 +502,12 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
                 mode="dropdown"
                 // iosIcon={<Icon name="arrow-down" />}
                 placeholder="Select Bank"
-                placeholderStyle={{color: '#707070'}}
-                style={{width: undefined}}
+                placeholderStyle={{
+                  color: '#707070',
+                }}
+                style={{
+                  width: undefined,
+                }}
                 selectedValue={bankk}
                 onValueChange={value => {
                   setBankk(value);
@@ -293,7 +565,9 @@ const BankSettings = ({navigation, closeModal, images, Add, image}) => {
               name="times"
               size={25}
               color="black"
-              style={{paddingRight: 23}}
+              style={{
+                paddingRight: 23,
+              }}
             />
           }
           centerComponent={{

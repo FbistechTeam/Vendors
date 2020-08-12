@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -19,6 +19,9 @@ import usePurse from '../../generalHooks/usePurse';
 import {useNavigation} from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
 import moment from 'moment';
+import {HandleAllRequest} from '../../../Api/Instance';
+import {Toast} from 'native-base';
+import {useSelector} from 'react-redux';
 
 const data = [
   {name: 'Sew Points', time: '34 mins ago', amount: 'N 3100'},
@@ -31,27 +34,187 @@ const Wallet = () => {
   const [modalView, setModalView] = useState(false);
   const [pending, setPending] = useState(true);
   const [withdrawn, setWithdrawn] = useState(false);
+  const [purse, setPurse] = useState([]);
+  const [LoadingP, setLoadingP] = useState(false);
+  const [done, setDone] = useState(false);
+  const [pendingR, setPendingR] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [msg, setMsg] = useState('');
   const [all, setAll] = useState(false);
   // const [done, setDone] = useState(false);
-  const [
-    loadingP,
-    Run,
-    purse,
-    withrawalRequest,
-    done,
-    setDone,
-    pendingR,
-    history,
-    msg,
-    PendHistory,
-    withdrawHistory,
-  ] = usePurse();
+  // const [
+  //   loadingP,
+  //   Run,
+  //   purse,
+  //   withrawalRequest,
+  //   done,
+  //   setDone,
+  //   pendingR,
+  //   history,
+  //   msg,
+  //   PendHistory,
+  //   withdrawHistory,
+  // ] = usePurse();
+  const {userData, isLogged, playerCalled, signal} = useSelector(
+    state => state.LoginReducer,
+  );
+  let {access_token} = userData;
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
 
   const navigation = useNavigation();
-  navigation.addListener('focus', async () => {
-    // Prevent default action
+
+  const withrawalRequest = amount => {
+    setLoadingP(true);
+    let Data = {amount};
+    const request = HandleAllRequest(
+      'vendors/withdrawals/request?provider=vendor',
+      'post',
+      access_token,
+      Data,
+    );
+
+    request
+      .then(data => {
+        setLoadingP(false);
+
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          let d = data.data;
+          setDone(true);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+  //**gets on-going projects */
+
+  const Run = () => {
+    setLoadingP(true);
+    /**gets user purse */
+    const request = HandleAllRequest(
+      'vendors/purse?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    request.then(data => {
+      let p = data.data;
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setPurse(data.data);
+        setLoadingP(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        // setMsg(m);
+        setLoadingP(false);
+      }
+    });
+  };
+
+  const PendHistory = () => {
+    /**get pending withdrawals */
+    setLoadingP(true);
+    const requestPending = HandleAllRequest(
+      'vendors/withdrawals/pending?provider=vendor',
+      'get',
+      access_token,
+    );
+    requestPending
+      .then(data => {
+        let p = data;
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setPendingR(data.data);
+          setLoadingP(false);
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          setLoadingP(false);
+        }
+      })
+      .catch(err => {
+        setLoadingP(false);
+      });
+  };
+  const withdrawHistory = () => {
+    setLoadingP(true);
+    /**get pending withdrawals */
+    const requestHistory = HandleAllRequest(
+      'vendors/withdrawals?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    requestHistory
+      .then(data => {
+        let p = data;
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setHistory(data.data);
+          setLoadingP(false);
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          setLoadingP(false);
+        }
+      })
+      .catch(err => {
+        setLoadingP(false);
+      });
+  };
+
+  const init = async () => {
     await Run();
-  });
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const handlePending = () => {
     setPending(true);
@@ -66,6 +229,8 @@ const Wallet = () => {
     withdrawHistory();
   };
   const handleAll = () => {
+    PendHistory();
+    withdrawHistory();
     setPending(true);
     setWithdrawn(true);
     setAll(true);
@@ -80,7 +245,7 @@ const Wallet = () => {
         hidden={false}
       />
       <Spinner
-        visible={loadingP}
+        visible={LoadingP}
         textContent={'Please Wait...'}
         textStyle={styles.spinnerTextStyle}
       />

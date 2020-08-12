@@ -86,7 +86,7 @@ export default () => {
           duration: 5000,
           style: Style,
         });
-        setMsg(m);
+        // setMsg(m);
         setLoading(false);
       }
     });

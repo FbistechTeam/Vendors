@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
 import {
   View,
@@ -13,7 +14,7 @@ import {
   widthPercentageToDP,
   heightPercentageToDP,
 } from 'react-native-responsive-screen';
-// import FullScreenModal from '../../../components/Modal';
+import {Toast} from 'native-base';
 import Switches from 'react-native-switches';
 import GreyWallet from '../../../../assets/Group2633.svg';
 import Wallet from '../../../../assets/Group 2634.svg';
@@ -29,43 +30,141 @@ import Accepted from '../../../../assets/accepted.svg';
 import Measurement from '../../../../assets/measurement.svg';
 import {useSelector} from 'react-redux';
 import useProfile from '../../generalHooks/useProfile';
+import {HandleAllRequest} from '../../../Api/Instance';
 
 const Homepage = ({route}) => {
   const [visible, setVisible] = useState(false);
   const [switchValue, setSwitchValue] = useState(false);
   const [name, setName] = useState('');
-  const [
-    loadingP,
-    Run,
-    purse,
-    withrawalRequest,
-    done,
-    setDone,
-    pendingR,
-    history,
-  ] = usePurse();
-  const [accepted, completed, reviews, message, RunAnalytics] = useAnalytics();
-  const [
-    loading,
-    setLoading,
-    online,
-    profile,
-    getProfile,
-    updateProfile,
-    updatePassword,
-    password,
-    setPassword,
-  ] = useProfile();
+  const [purse, setPurse] = useState([]);
+  const [accepted, setAccepted] = useState([]);
+  const [completed, setCompleted] = useState([]);
+  const [profile, setProfile] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
+
   const {userData, isLogged, playerCalled, signal} = useSelector(
     state => state.LoginReducer,
   );
+  let {access_token} = userData;
+
   const navigation = useNavigation();
-  navigation.addListener('focus', async e => {
-    // Prevent default action
+
+  //**gets user Profile */
+  const getProfile = async () => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        'vendors/profile?provider=vendor',
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          console.log('garrit');
+          setProfile(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      setLoading(false);
+    }
+  };
+
+  //**get purse info */
+  const Run = () => {
+    setLoading(true);
+    /**gets user purse */
+    const request = HandleAllRequest(
+      'vendors/purse?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    request.then(data => {
+      let p = data.data;
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setPurse(data.data);
+        setLoading(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        // setMsg(m);
+        setLoading(false);
+      }
+    });
+  };
+
+  //**this runs the analytics */
+  const RunAnalytics = async () => {
+    setLoading(true);
+    try {
+      const request = HandleAllRequest(
+        'vendors/measurer/analytics/total_accepted_requests?provider=vendor',
+        'get',
+        access_token,
+      );
+      await request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setAccepted(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      //**gets ongoing projects */
+      const requestCompleted = HandleAllRequest(
+        'vendors/measurer/analytics/total_completed_jobs?provider=vendor',
+        'get',
+        access_token,
+      );
+      await requestCompleted.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCompleted(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  const init = async () => {
     await RunAnalytics();
     await Run();
     await getProfile();
-  });
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -73,18 +172,21 @@ const Homepage = ({route}) => {
     });
   }, [navigation, profile.first_name]);
 
+  //**initializes screan */
   useEffect(() => {
     if (signal) {
       navigation.navigate('Pending');
     }
-  }, [navigation, signal]);
+    console.log('again');
+    init();
+  }, []);
 
   const Data = [
     {svg: <Accepted />, value: accepted, text: 'Requests Accepted'},
     {
       svg: <Measurement />,
       value: completed,
-      text: 'Measurements Taken (89.5%)',
+      text: 'Measurements Taken',
     },
     // {svg: <Achievements />, value: 103, text: 'Achievements Unlocked'},
   ];
@@ -111,7 +213,7 @@ const Homepage = ({route}) => {
   ];
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: '#fff', flex: 1}}>
       <StatusBar
         backgroundColor="#fff"
         barStyle="dark-content"
@@ -157,7 +259,7 @@ const Homepage = ({route}) => {
               {purse.current_balance}
               <Text style={switchValue ? styles.amts : styles.amts}>NGN</Text>
             </Text>
-            <Text style={styles.dueDate}>Next withdrawal due 7th April 20</Text>
+            {/* <Text style={styles.dueDate}>Next withdrawal due 7th April 20</Text> */}
           </View>
           <View style={styles.top}>
             {Data.map(data => {
@@ -170,7 +272,7 @@ const Homepage = ({route}) => {
               );
             })}
           </View>
-          <View style={styles.review}>
+          {/* <View style={styles.review}>
             <View style={styles.stats}>
               <Text style={styles.stats_title}>Reviews</Text>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -195,7 +297,7 @@ const Homepage = ({route}) => {
                 />
               );
             })}
-          </View>
+          </View> */}
         </View>
       </ScrollView>
     </SafeAreaView>

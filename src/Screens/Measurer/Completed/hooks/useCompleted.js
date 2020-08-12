@@ -1,4 +1,4 @@
-import {useEffect, useState, useCallback} from 'react';
+import {useState} from 'react';
 import {useSelector} from 'react-redux';
 import {PermissionsAndroid} from 'react-native';
 import ImagePicker from 'react-native-image-picker';
@@ -7,15 +7,14 @@ import Instance from '../../../../Api/Instance';
 import useApi from '../../../../Api/useApi';
 
 export default () => {
-  const [results, setResults] = useState([]);
   const [propt, setPropt] = useState([]);
-
-  const [Allmeasurement, setMesurements] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [status, setStatus] = useState(false);
-  const [AddedStyleVisible, setAddedStyleVisible] = useState(false);
+  const [results, setResults] = useState([]);
   const [CompletedModalView, setCompletedModalView] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [Allmeasurement, setMesurements] = useState([]);
+  const [amount, setAmount] = useState('');
+  const [AddedStyleVisible, setAddedStyleVisible] = useState(false);
   const [measurement_id, setMeasurement_id] = useState(' ');
   const options = {};
 

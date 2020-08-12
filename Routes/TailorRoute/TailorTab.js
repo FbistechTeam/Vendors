@@ -61,7 +61,7 @@ function TailorsTab() {
       <Tab.Screen name="Home" component={Tailor} />
       <Tab.Screen name="Requests" component={TailorPendingRoute} />
       <Tab.Screen name="Complete" component={CompleteRoute} />
-      <Tab.Screen name="Achievements" component={ArchivementRoute} />
+      {/* <Tab.Screen name="Achievements" component={ArchivementRoute} /> */}
       <Tab.Screen name="Wallet" component={WalletRoute} />
     </Tab.Navigator>
   );

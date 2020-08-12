@@ -55,7 +55,7 @@ const CompletedModal = ({
               <Text style={styles.MesurementTitle}>{data.title}</Text>
               {data.measurement.properties.map(data => {
                 return (
-                  <View style={styles.list}>
+                  <View key={data.cat_prop.title} style={styles.list}>
                     <Text>{data.cat_prop.title}</Text>
                     <Text>{data.size}</Text>
                   </View>

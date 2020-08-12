@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState} from 'react';
+import {useSelector} from 'react-redux';
 import {
   View,
   Text,
@@ -22,28 +24,115 @@ import {
 import Ionicons from 'react-native-vector-icons/FontAwesome';
 import {Picker} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {Button, Textarea, Card} from 'native-base';
+import {Button, Toast, Card} from 'native-base';
 import useWithdrawals from '../generalHooks/useWithdrawals';
 import {useNavigation} from '@react-navigation/native';
+import {HandleAllRequest} from '../../Api/Instance';
+import {useEffect} from 'react';
 
 const WithdrawOption = ({closeModal, images, Add, image}) => {
   const [frequency, setFrequency] = useState('Frequency');
-  const [
-    loading,
-    Details,
-    options,
-    currentBank,
-    withrawalOption,
-  ] = useWithdrawals();
+  const [loading, setLoading] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [currentBank, setCurrentBank] = useState([]);
+  const {userData} = useSelector(state => state.LoginReducer);
+  let {access_token} = userData;
+
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
 
   const navigation = useNavigation();
 
-  navigation.addListener('focus', () => {
+  const init = () => {
     Details();
-  });
+  };
+  /**set withrawal options */
+  const withrawalOption = dataA => {
+    setLoading(true);
+    let Data = {
+      option_id: dataA,
+    };
+    const request = HandleAllRequest(
+      'vendors/withdrawals/options/set?provider=vendor',
+      'put',
+      access_token,
+      Data,
+    );
+    request
+      .then(data => {
+        setLoading(false);
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          let d = data.data;
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    //**gets on-going projects */
+  };
+
+  const Details = async () => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        `vendors/withdrawals/options?provider=vendor`,
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setOptions(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      //**gets ongoing projects */
+      const response2 = HandleAllRequest(
+        'vendors/banks?provider=vendor',
+        'get',
+        access_token,
+      );
+      response2.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCurrentBank(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}>
       <Header
         placement="center"
         backgroundColor="#fff"
@@ -56,7 +145,9 @@ const WithdrawOption = ({closeModal, images, Add, image}) => {
             name="bars"
             size={30}
             color="black"
-            style={{paddingLeft: 23}}
+            style={{
+              paddingLeft: 23,
+            }}
           />
         }
         leftContainerStyle={styles.left}
@@ -69,7 +160,9 @@ const WithdrawOption = ({closeModal, images, Add, image}) => {
             name="times"
             size={25}
             color="black"
-            style={{paddingRight: 23}}
+            style={{
+              paddingRight: 23,
+            }}
           />
         }
         centerComponent={{
@@ -86,8 +179,12 @@ const WithdrawOption = ({closeModal, images, Add, image}) => {
                 mode="dropdown"
                 // iosIcon={<Icon name="arrow-down" />}
                 placeholder="Frequencey"
-                placeholderStyle={{color: '#707070'}}
-                style={{width: undefined}}
+                placeholderStyle={{
+                  color: '#707070',
+                }}
+                style={{
+                  width: undefined,
+                }}
                 selectedValue={frequency}
                 onValueChange={value => {
                   setFrequency(value);

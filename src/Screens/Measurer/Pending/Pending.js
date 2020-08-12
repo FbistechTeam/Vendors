@@ -23,40 +23,156 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {useSelector, useDispatch} from 'react-redux';
 import {signalOffData} from '../../LoginScreen/Action/Action';
 import useOnesignal from '../../../../useOnesignal';
-
-const Data = [
-  {
-    id: 1,
-    user: ' User098',
-    distance: '3 miles away',
-  },
-  {
-    id: 2,
-    user: ' User097',
-    distance: '3 miles away',
-  },
-];
+import {HandleAllRequest} from '../../../Api/Instance';
+import {Toast} from 'native-base';
 
 const Pending = ({Measurements}) => {
   const [btn, setBtn] = useState('Arrived');
   const [id, setId] = useState();
-  const [loading, pending, ongoing, GetJObs, AcceptRequest] = useJobs();
+  const [pending, setPending] = useState([]);
+  const [ongoing, setOngoing] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [segment, setSegment] = useState(false);
   const [notificationPush, notificationOff] = useOnesignal();
+
+  const {userData, isLogged, playerCalled, signal} = useSelector(
+    state => state.LoginReducer,
+  );
+  let {access_token} = userData;
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  navigation.addListener('focus', async () => {
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
+
+  //**this is to get all job request */
+  const GetJObs = async () => {
+    setLoading(true);
+    try {
+      const request = HandleAllRequest(
+        'vendors/measurer/jobs/pending?provider=vendor',
+        'get',
+        access_token,
+      );
+      request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        let pend = data.data;
+        if (s) {
+          setLoading(false);
+          if (pend.length <= 0) {
+            Toast.show({
+              text: 'No Pending Request',
+              buttonText: 'Okay',
+              position: 'top',
+              type: 'danger',
+              duration: 5000,
+              style: Style,
+            });
+          } else {
+            setPending(data.data);
+          }
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+
+      //**gets ongoing projects */
+      const requestOngoing = HandleAllRequest(
+        'vendors/measurer/jobs/ongoing?provider=vendor',
+        'get',
+        access_token,
+      );
+      requestOngoing.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setOngoing(data.data);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m2,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  /**to accept requests */
+  const AcceptRequest = async job_id => {
+    setLoading(true);
+    const dataId = {job_id};
+    try {
+      const requestOngoing = HandleAllRequest(
+        'vendors/measurer/jobs/accept?provider=vendor',
+        'put',
+        access_token,
+        dataId,
+      );
+      requestOngoing.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          GetJObs();
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          GetJObs();
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  //**initial  */
+  const init = async () => {
     await GetJObs();
     await notificationOff();
-  });
-
-  const handleArrived = id => {
-    console.log(id);
-    setId(id);
   };
+
+  useEffect(() => {
+    init();
+  }, []);
+
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{backgroundColor: '#fff', flex: 1}}>
       <StatusBar
         backgroundColor="#fff"
         barStyle="dark-content"
@@ -195,7 +311,9 @@ const Pending = ({Measurements}) => {
                       title="Start Measurement"
                       buttonStyle={styles.btn}
                       onPress={() => {
-                        navigation.navigate('Measurements', {job_id: data.id});
+                        navigation.navigate('Measurements', {
+                          job_id: data.id,
+                        });
                       }}
                     />
                   </View>

@@ -21,6 +21,7 @@ export default () => {
             // Accept: 'application/json',
             'Content-Type': 'application/json',
             Authorization: `Bearer ${access_token}`,
+            'retry-after': 3600,
           },
           body: JSON.stringify(jsonData),
         });
@@ -32,6 +33,7 @@ export default () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${access_token}`,
+            'retry-after': 3600,
           },
           body: JSON.stringify(jsonData),
         });
@@ -43,6 +45,7 @@ export default () => {
           headers: {
             Accept: 'application/json',
             Authorization: `Bearer ${access_token}`,
+            'retry-after': 3600,
           },
         });
         return getResponse.json();
@@ -53,6 +56,7 @@ export default () => {
           method: 'DELETE', // *GET, POST, PUT, DELETE, etc.
           headers: {
             'Content-Type': 'application/json',
+            'retry-after': 3600,
             Authorization: `Bearer ${access_token}`,
             body: jsonData,
           },
