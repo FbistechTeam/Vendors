@@ -1,5 +1,5 @@
 import {put, takeEvery} from 'redux-saga/effects';
-import Instance from '../../Api/Instance';
+import InstanceTwo from '../../Api/InstanceTwo';
 import {Toast} from 'native-base';
 
 import {actionType} from './Action/ActionType';
@@ -23,7 +23,7 @@ const Style = {
 };
 function* LoginUsers({payload}) {
   try {
-    const request = yield Instance.post('vendor/login', payload);
+    const request = yield InstanceTwo.post('vendor/login', payload);
 
     if (request.status === 200) {
       let data = request.data;
@@ -61,7 +61,7 @@ function* LoginUsers({payload}) {
 }
 function* PasswordRecovery({payload}) {
   try {
-    const request = yield Instance.post(
+    const request = yield InstanceTwo.post(
       'vendor/password/recovery/request',
       payload,
     );
@@ -103,7 +103,10 @@ function* PasswordRecovery({payload}) {
 
 function* ChangePassword({payload}) {
   try {
-    const request = yield Instance.put('vendor/password/recovery/set', payload);
+    const request = yield InstanceTwo.put(
+      'vendor/password/recovery/set',
+      payload,
+    );
 
     if (request.status === 200) {
       let data = request.data;

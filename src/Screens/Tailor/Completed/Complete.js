@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -22,10 +23,12 @@ import Sort from '../../../../assets/sort.svg';
 import CalendarPicker from 'react-native-calendar-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import moment from 'moment';
+import {Toast} from 'native-base';
 import CarouselModal from '../Pending/CarouselModal';
 import useComplete from './hooks/useComplete';
-
+import {useSelector} from 'react-redux';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {HandleAllRequest} from '../../../Api/Instance';
 
 if (
   Platform.OS === 'android' &&
@@ -34,39 +37,93 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const Data = [
-  {
-    id: 1,
-    user: ' User098',
-    distance: '3 mins ago',
-  },
-  {
-    id: 2,
-    user: ' User097',
-    distance: '3 sec ago',
-  },
-];
-
 const CompleteTailor = ({route}) => {
   const [search, setSearch] = useState('');
   const [selectedStartDate, setSelectedStartDate] = useState('Date');
   const [display, setDisplay] = useState(false);
   const [user, SetUser] = useState('');
-  const [
-    loading,
-    results,
-    run,
-    ViewRequest,
-    openCarousel,
-    setOpenCarousel,
-    resultsData,
-  ] = useComplete();
+  const [results, setResults] = useState([]);
+  const [openCarousel, setOpenCarousel] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resultsData, setResultsData] = useState([]);
+  const {userData, tailor_category_id} = useSelector(
+    state => state.LoginReducer,
+  );
+  let {access_token} = userData;
+
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
+
+  //** sort fabrics */
+  const ViewRequest = async job_id => {
+    setLoading(true);
+    setResultsData([]);
+    try {
+      const response = HandleAllRequest(
+        `vendors/tailor/jobs/${job_id}/details?provider=vendor`,
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsData(data.data);
+          setOpenCarousel(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  const run = () => {
+    setLoading(true);
+    const request = HandleAllRequest(
+      'vendors/tailor/jobs/completed?provider=vendor',
+      'get',
+      access_token,
+    );
+    request
+      .then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResults(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      })
+      .catch(err => {
+        setLoading(false);
+      });
+  };
 
   const navigation = useNavigation();
 
-  navigation.addListener('focus', () => {
+  const init = () => {
     run();
-  });
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const updateSearch = search => {
     let value = search;

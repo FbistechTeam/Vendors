@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
-// import {NavigationEvents} from 'react-navigation';
+import {Toast} from 'native-base';
 import {
   View,
   Text,
@@ -24,37 +25,215 @@ import PendingModalConfirmation from './PendingModalConfirmation';
 import CarouselModal from './CarouselModal';
 import useRequest from './useRequest';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {useSelector} from 'react-redux';
+import {HandleAllRequest} from '../../../Api/Instance';
 
 const TailorPending = ({Measurements}) => {
   const [btn, setBtn] = useState('Arrived');
   const [dispatch, setDispatch] = useState(false);
   const [confirm, setConfirm] = useState(false);
-
   const [starCount, setStarCount] = useState(0);
   const [segment, setSegment] = useState(false);
-  const [
-    loading,
-    results,
-    resultsOngoing,
-    Messages,
-    status1,
-    ViewRequest,
-    reqMessages,
-    setReqMessage,
-    CompleteRequest,
-    run,
-    AcceptRequest,
-    jobInfo,
-    resultsData,
-    openCarousel,
-    setOpenCarousel,
-  ] = useRequest();
+  const [results, setResults] = useState([]);
+  const [resultsData, setResultsData] = useState([]);
+  const [resultsOngoing, setResultsOngoing] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [status1, setStatus1] = useState(false);
+  const [openCarousel, setOpenCarousel] = useState(false);
+  const [Messages, setMessage] = useState('');
+  const [reqMessages, setReqMessage] = useState('');
+  const {userData, tailor_category_id} = useSelector(
+    state => state.LoginReducer,
+  );
+  let {access_token} = userData;
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
 
   const navigation = useNavigation();
 
-  navigation.addListener('focus', () => {
+  //** sort fabrics */
+  const ViewRequest = async job_id => {
+    setLoading(true);
+    setResultsData([]);
+    try {
+      const response = HandleAllRequest(
+        `vendors/tailor/jobs/${job_id}/details?provider=vendor`,
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsData(data.data);
+          setOpenCarousel(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setReqMessage(m);
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  /**to trigger a project to completion */
+
+  const CompleteRequest = async job_id => {
+    setLoading(true);
+    const dataId = {job_id};
+    try {
+      const response = HandleAllRequest(
+        'vendors/tailor/jobs/trigger-completion?provider=vendor',
+        'put',
+        access_token,
+        dataId,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  const run = async () => {
+    setLoading(true);
+    /**get all pending requests */
+    try {
+      const response = HandleAllRequest(
+        'vendors/tailor/jobs/pending?provider=vendor',
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setLoading(false);
+          let d = data.data;
+          setResults(d);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+
+    try {
+      const response = HandleAllRequest(
+        `vendors/tailor/jobs/ongoing?provider=vendor`,
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setResultsOngoing(data.data);
+          setStatus1(s);
+        } else {
+          setStatus1(s);
+          setMessage(m);
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  /**to accept requests */
+  const AcceptRequest = async job_id => {
+    setLoading(true);
+    const dataId = {job_id};
+    try {
+      const response = HandleAllRequest(
+        'vendors/tailor/jobs/accept?provider=vendor',
+        'put',
+        access_token,
+        dataId,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          run();
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  const init = () => {
     run();
-  });
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const onStarRatingPress = rating => {
     setStarCount(rating);

@@ -1,5 +1,5 @@
 import {put, takeEvery} from 'redux-saga/effects';
-import Instance from '../../Api/Instance';
+import InstanceTwo from '../../Api/InstanceTwo';
 import {Toast} from 'native-base';
 import {useNavigation} from '@react-navigation/native';
 
@@ -20,7 +20,7 @@ const Style = {
 };
 function* registerUsers({payload}) {
   try {
-    const request = yield Instance.post('vendor/register', payload);
+    const request = yield InstanceTwo.post('vendor/register', payload);
 
     if (request.status === 200) {
       let data = request.data;
@@ -58,7 +58,7 @@ function* registerUsers({payload}) {
 }
 function* resendVerification({payload}) {
   try {
-    const request = yield Instance.put(
+    const request = yield InstanceTwo.put(
       'vendor/registration/token/resend',
       payload,
     );
@@ -99,7 +99,10 @@ function* resendVerification({payload}) {
 }
 function* verifyToken({payload}) {
   try {
-    const request = yield Instance.put('vendor/registration/confirm', payload);
+    const request = yield InstanceTwo.put(
+      'vendor/registration/confirm',
+      payload,
+    );
 
     if (request.status === 200) {
       let data = request.data;

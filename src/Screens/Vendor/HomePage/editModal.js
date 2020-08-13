@@ -32,6 +32,7 @@ import {Alert} from 'react-native';
 import {Button} from 'react-native-elements';
 import Popover from 'react-native-popover-view';
 import Spinner from 'react-native-loading-spinner-overlay';
+import InstanceTwo from '../../../Api/InstanceTwo';
 
 if (
   Platform.OS === 'android' &&
@@ -133,7 +134,7 @@ const EditModal = ({
       AddData.append('title', values.title);
       AddData.append('price_per_yard', values.price_per_yard);
       AddData.append('quantity_in_stock', values.quantity_in_stock);
-      const response = await Instance.post(
+      const response = await InstanceTwo.post(
         'vendors/materials/add?provider=vendor',
         AddData,
         {
@@ -188,7 +189,7 @@ const EditModal = ({
     console.log(data);
     const deleteReq = new Promise(res => {
       res(
-        Instance.delete('vendors/materials/delete?provider=vendor', {
+        InstanceTwo.delete('vendors/materials/delete?provider=vendor', {
           headers: {
             Authorization: 'Bearer ' + access_token,
           },

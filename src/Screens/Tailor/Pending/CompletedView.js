@@ -28,8 +28,6 @@ const CompletedView = ({
   Edit,
   Report,
 }) => {
-  console.log(Data);
-
   return (
     <View style={styles.container}>
       <View style={styles.group}>

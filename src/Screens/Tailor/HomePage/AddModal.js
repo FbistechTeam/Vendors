@@ -30,6 +30,7 @@ import ImagePicker from 'react-native-image-picker';
 import Instance from '../../../Api/Instance';
 import {Toast} from 'native-base';
 import {Button} from 'react-native-elements';
+import InstanceTwo from '../../../Api/InstanceTwo';
 
 if (
   Platform.OS === 'android' &&
@@ -123,7 +124,7 @@ const AddModal = ({
       let AddData = new FormData();
       AddData.append('image', image);
       AddData.append('title', values.title);
-      const response = await Instance.post(
+      const response = await InstanceTwo.post(
         'styles/upload?provider=vendor',
         AddData,
         {
@@ -149,6 +150,7 @@ const AddModal = ({
           style: Style,
         });
         setLoading(false);
+        closeModal();
       } else {
         Toast.show({
           text: m,

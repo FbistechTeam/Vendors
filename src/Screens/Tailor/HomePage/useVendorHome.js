@@ -7,10 +7,10 @@ import {Toast} from 'native-base';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 
 export default () => {
-  const [styled, setStyles] = useState([]);
   const [ongoing, setOnGoing] = useState([]);
   const [completed, setCompleted] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [styled, setStyles] = useState([]);
   const [online, setOnline] = useState(false);
   const [profile, setProfile] = useState([]);
   const options = {};

@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,6 +12,7 @@ import {
   PermissionsAndroid,
   ActivityIndicator,
 } from 'react-native';
+import {Toast} from 'native-base';
 import {Button, Divider} from 'react-native-elements';
 import {
   widthPercentageToDP,
@@ -37,6 +39,8 @@ import Measurement from '../../../../assets/accepted.svg';
 import EditModal from './editModal';
 import {useNavigation} from '@react-navigation/native';
 import useProfile from '../../generalHooks/useProfile';
+import {HandleAllRequest} from '../../../Api/Instance';
+import InstanceTwo from '../../../Api/InstanceTwo';
 
 const VendorHomepage = ({route}) => {
   const [visible, setVisible] = useState(false);
@@ -44,67 +48,214 @@ const VendorHomepage = ({route}) => {
   const [edit, setEdit] = useState(false);
   const [switchValue, setSwitchValue] = useState(false);
   const [inputs, setInputs] = useState({});
-  const [materials, reload] = useHome();
+  const [materials, setMaterials] = useState([]);
+  const [purse, setPurse] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [online, setOnline] = useState(false);
+  const [profile, setProfile] = useState([]);
+  const [password, setPassword] = useState('');
+  const [msg, setMsg] = useState('');
+  const [Achievements, setAchievements] = useState([]);
+  const [completed, setCompleted] = useState([]);
   const {userData} = useSelector(state => state.LoginReducer);
   let {access_token} = userData;
   const options = {mediaType: 'photo'};
-  const [
-    loadingP,
-    Run,
-    purse,
-    withrawalRequest,
-    done,
-    setDone,
-    pendingR,
-    history,
-    msg,
-  ] = usePurse();
-  const [
-    loading,
-    setLoading,
-    online,
-    profile,
-    getProfile,
-    updateProfile,
-    updatePassword,
-    password,
-    setPassword,
-  ] = useProfile();
-  const [Analytics, Achievements, completed, reviews, message] = useAnalytics();
+
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
+
+  const reload = () => {
+    const request = new Promise(res => {
+      res(
+        InstanceTwo.get('vendors/materials?provider=vendor', {
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+        }),
+      );
+    });
+    request.then(({data: data}) => {
+      console.log('started', data);
+      setMaterials(data.data);
+    });
+  };
+
+  const Analytics = async () => {
+    setLoading(true);
+    try {
+      const request = HandleAllRequest(
+        'vendors/retailer/analytics/achievements?provider=vendor',
+        'get',
+        access_token,
+      );
+      request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setAchievements(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      //**gets ongoing projects */
+      const requestCompleted = HandleAllRequest(
+        'vendors/retailer/analytics/sold_out?provider=vendor',
+        'get',
+        access_token,
+      );
+      requestCompleted.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCompleted(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  const getProfile = async () => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        'vendors/profile?provider=vendor',
+        'get',
+        access_token,
+      );
+      response.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setProfile(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async data => {
+    setLoading(true);
+    try {
+      const response = HandleAllRequest(
+        'vendors/profile/update?provider=vendor',
+        'put',
+        access_token,
+        data,
+      );
+      response.then(Data => {
+        let s = Data.status;
+        let m = Data.message;
+
+        if (s) {
+          setLoading(false);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'success',
+            duration: 5000,
+            style: Style,
+          });
+          getProfile();
+        } else {
+          setLoading(false);
+          // setReqMessage(m);
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+        }
+      });
+    } catch (err) {
+      //   setErrorMessage('Something went wrong');
+      setLoading(false);
+      alert(err);
+    }
+  };
+
+  const Run = () => {
+    setLoading(true);
+    /**gets user purse */
+    const request = HandleAllRequest(
+      'vendors/purse?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    request.then(data => {
+      let p = data.data;
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setPurse(data.data);
+        setLoading(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        // setMsg(m);
+        setLoading(false);
+      }
+    });
+  };
 
   const navigation = useNavigation();
-  navigation.addListener('focus', async e => {
+  const init = async () => {
     // Prevent default action
     await Run();
     await Analytics();
     await getProfile();
-  });
+  };
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: <Text>Hello {profile.first_name}</Text>,
     });
   }, [navigation, profile.first_name]);
-
-  const data = [
-    {
-      name: 'User 01',
-      feedback: 'Early and Great human interaction',
-      time: '2 days ago',
-      rate: 4,
-    },
-    {
-      name: 'User 03',
-      feedback: 'Early and Great human interaction',
-      time: '2 days ago',
-      rate: 4.5,
-    },
-    {
-      name: 'User 02',
-      feedback: 'Early and Great human interaction',
-      time: '2 days ago',
-      rate: 2,
-    },
-  ];
+  useEffect(() => {
+    init();
+    const request = new Promise(res => {
+      res(
+        InstanceTwo.get('vendors/materials?provider=vendor', {
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+        }),
+      );
+    });
+    request.then(({data: data}) => {
+      setMaterials(data.data);
+    });
+  }, []);
 
   const Data = [
     // {svg: <Accepted />, value: 150, text: 'Requests Accepted'},

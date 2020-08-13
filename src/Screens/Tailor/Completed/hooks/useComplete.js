@@ -9,13 +9,13 @@ import useApi from '../../../../Api/useApi';
 
 export default () => {
   const [results, setResults] = useState([]);
-  const [resultsOngoing, setResultsOngoing] = useState([]);
+  const [openCarousel, setOpenCarousel] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resultsData, setResultsData] = useState([]);
+  const [resultsOngoing, setResultsOngoing] = useState([]);
   const [status1, setStatus1] = useState(false);
   const options = {};
   const [Messages, setMessage] = useState('');
-  const [openCarousel, setOpenCarousel] = useState(false);
-  const [resultsData, setResultsData] = useState([]);
 
   const {userData, tailor_category_id} = useSelector(
     state => state.LoginReducer,

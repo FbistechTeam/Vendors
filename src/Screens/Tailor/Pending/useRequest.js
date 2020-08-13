@@ -14,9 +14,9 @@ export default () => {
   const [loading, setLoading] = useState(false);
   const [status1, setStatus1] = useState(false);
   const [openCarousel, setOpenCarousel] = useState(false);
-  const options = {};
   const [Messages, setMessage] = useState('');
   const [reqMessages, setReqMessage] = useState('');
+  const options = {};
 
   const {userData, tailor_category_id} = useSelector(
     state => state.LoginReducer,

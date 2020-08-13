@@ -35,9 +35,6 @@ const MaterialView = ({
     uri: `${Data.fabric.img_url}`,
   };
 
-  console.log(Data);
-  // let styleImage2 = ;
-
   return (
     <View style={styles.container}>
       <View style={styles.group}>

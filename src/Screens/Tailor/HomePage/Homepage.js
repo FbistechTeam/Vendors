@@ -1,4 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useState, useEffect} from 'react';
+import {Toast} from 'native-base';
 import {
   View,
   Text,
@@ -37,35 +39,207 @@ import Accepted from '../../../../assets/VendorRequest.svg';
 import Measurement from '../../../../assets/accepted.svg';
 import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
+import InstanceTwo from '../../../Api/InstanceTwo';
+import {HandleAllRequest} from '../../../Api/Instance';
+import Spinner from 'react-native-loading-spinner-overlay';
+
 const TailorHomepage = ({route}) => {
   const [visible, setVisible] = useState(false);
   const [add, setAdd] = useState(false);
-  // const [online, setonline] = useState(false);
+  const [accepted, setAccepted] = useState([]);
+  const [completed, setCompleted] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [message, setMessage] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [image, setImage] = useState({});
   const [images, setImages] = useState(false);
-  const [
-    loading,
-    handleToggle,
-    online,
-    profile,
-    styled,
-    RunVendorHome,
-  ] = useVendorHome();
-
-  const [accepted, completed, reviews, message, RunAnalytics] = useAnalytics();
-  const [
-    loadingP,
-    Run,
-    purse,
-    withrawalRequest,
-    done,
-    setDone,
-    pendingR,
-    history,
-  ] = usePurse();
+  const [styled, setStyles] = useState([]);
+  const [online, setOnline] = useState(false);
+  const [profile, setProfile] = useState([]);
+  const [purse, setPurse] = useState([]);
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
   const {userData, isLogged, playerCalled, signal} = useSelector(
     state => state.LoginReducer,
   );
+  let {access_token} = userData;
+
+  //**nedor home */
+
+  const Run = () => {
+    setLoading(true);
+    /**gets user purse */
+    const request = HandleAllRequest(
+      'vendors/purse?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    request.then(data => {
+      let p = data.data;
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setPurse(data.data);
+        setLoading(false);
+      } else {
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+        // setMsg(m);
+        setLoading(false);
+      }
+    });
+  };
+  /**toggle visibility online */
+  const handleToggle = () => {
+    setLoading(true);
+    const request = new Promise(res => {
+      res(
+        InstanceTwo.put(
+          'vendors/tailor/toggle-visibility?provider=vendor',
+          {},
+          {
+            headers: {
+              Authorization: 'Bearer ' + access_token,
+            },
+          },
+        ),
+      );
+    });
+    request.then(({data: data}) => {
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setLoading(false);
+        let d = data.data;
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'success',
+          duration: 5000,
+          style: Style,
+        });
+        if (d.is_online == 1) {
+          setOnline(true);
+        } else {
+          setOnline(false);
+        }
+      }
+    });
+    //**gets on-going projects */
+  };
+
+  const RunVendorHome = async () => {
+    setLoading(true);
+    try {
+      const response = await InstanceTwo.get(
+        `vendors/profile?provider=vendor`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
+        },
+      );
+      let s = response.data.status;
+      let m = response.data.message;
+      if (s) {
+        setProfile(response.data.data);
+        setLoading(false);
+        if (response.data.data.is_online === 1) {
+          setOnline(true);
+        } else {
+          setOnline(false);
+        }
+      } else {
+        setLoading(false);
+      }
+      //**gets ongoing projects */
+      const response2 = await InstanceTwo.get('styles?provider=vendor', {
+        headers: {
+          Authorization: 'Bearer ' + access_token,
+        },
+      });
+      let s2 = response2.data.status;
+      let m2 = response2.data.message;
+      if (s2) {
+        setStyles(response2.data.data);
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
+  //**runs analytics */
+
+  const RunAnalytics = async () => {
+    setLoading(true);
+    try {
+      const request = HandleAllRequest(
+        `vendors/tailor/analytics/total_accepted_requests?provider=vendor`,
+        'get',
+        access_token,
+      );
+      request.then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setAccepted(data.data);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      //**gets ongoing projects */
+      const requestCompleted = HandleAllRequest(
+        'vendors/tailor/analytics/total_completed_jobs?provider=vendor',
+        'get',
+        access_token,
+      );
+      requestCompleted.then(data => {
+        let s2 = data.status;
+        let m2 = data.message;
+        if (s2) {
+          setCompleted(data.data);
+        } else {
+          setLoading(false);
+        }
+      });
+
+      const requestReviews = HandleAllRequest(
+        'vendors/tailor/jobs/reviews?provider=vendor',
+        'get',
+        access_token,
+      );
+      requestReviews.then(data => {
+        let s3 = data.status;
+        let m3 = data.message;
+        if (s3) {
+          setReviews(data.data);
+        } else {
+          setLoading(false);
+          setMessage(m3);
+        }
+      });
+    } catch (err) {
+      // setErrorMessage('Something went wrong');
+      setLoading(false);
+    }
+  };
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: <Text>Hello {profile.first_name}</Text>,
@@ -73,7 +247,11 @@ const TailorHomepage = ({route}) => {
   }, [navigation, profile.first_name]);
 
   const Data = [
-    {svg: <Accepted />, value: accepted, text: 'Requests Accepted'},
+    {
+      svg: <Accepted />,
+      value: accepted,
+      text: 'Requests Accepted',
+    },
     {
       svg: <Measurement />,
       value: completed,
@@ -82,19 +260,21 @@ const TailorHomepage = ({route}) => {
     // {svg: <Achievements />, value: 103, text: 'Achievements Unlocked'},
   ];
 
-  useEffect(() => {
-    if (signal) {
-      navigation.navigate('Requests');
-    }
-  }, [navigation, signal]);
-
-  const navigation = useNavigation();
-  navigation.addListener('focus', async e => {
+  const init = async () => {
     // Prevent default action
     await Run();
     await RunAnalytics();
     await RunVendorHome();
-  });
+  };
+
+  useEffect(() => {
+    init();
+    if (signal) {
+      navigation.navigate('Requests');
+    }
+  }, []);
+
+  const navigation = useNavigation();
 
   const options = {};
 
@@ -134,7 +314,9 @@ const TailorHomepage = ({route}) => {
       } else if (response.customButton) {
         console.log('User tapped custom button: ', response.customButton);
       } else {
-        const source = {uri: response.uri};
+        const source = {
+          uri: response.uri,
+        };
         console.log(source);
         // You can also display the image using data:
         // const source = { uri: 'data:image/jpeg;base64,' + response.data };
@@ -234,8 +416,14 @@ const TailorHomepage = ({route}) => {
           <View style={styles.review}>
             <View style={styles.stats}>
               <Text style={styles.stats_title}>Reviews</Text>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.stats_rates}>0 Reviews | 0</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text style={styles.stats_rates}>
+                  {reviews.length} Reviews |5t
+                </Text>
                 <StarRating
                   disabled={false}
                   maxStars={5}
@@ -302,10 +490,16 @@ const TailorHomepage = ({route}) => {
           setAdd(false);
           setImage({});
           setImages(false);
+          RunVendorHome();
         }}
         Add={requestCameraPermission}
         image={image}
         images={images}
+      />
+      <Spinner
+        visible={loading}
+        textContent={'Please Wait...'}
+        textStyle={styles.spinnerTextStyle}
       />
     </SafeAreaView>
   );

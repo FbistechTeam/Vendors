@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -25,6 +26,9 @@ import {CompleteData} from './CompleteData';
 import useSold from './hooks/useSold';
 import {useNavigation} from '@react-navigation/native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {Toast} from 'native-base';
+import {useSelector} from 'react-redux';
+import {HandleAllRequest} from '../../../Api/Instance';
 
 if (
   Platform.OS === 'android' &&
@@ -54,13 +58,87 @@ const CompleteVendor = ({route}) => {
   const [reportModal, setReportModal] = useState(false);
   const [display, setDisplay] = useState(false);
   const [user, SetUser] = useState('');
-  const [loadings, sold, RunSold, FilterByDate] = useSold();
+  const [sold, setSold] = useState([]);
+  const [loadings, setLoadings] = useState(false);
+  const {userData} = useSelector(state => state.LoginReducer);
+  let {access_token} = userData;
+
+  const Style = {
+    width: widthPercentageToDP('88%'),
+    alignSelf: 'center',
+    borderRadius: 6,
+  };
+
+  const FilterByDate = date_value => {
+    setLoadings(true);
+    const request = HandleAllRequest(
+      `vendors/materials/sold-out/${date_value}/filter?provider=vendor`,
+      'get',
+      access_token,
+    );
+
+    request.then(data => {
+      let s = data.status;
+      let m = data.message;
+      if (s) {
+        setSold(data.data);
+        setLoadings(false);
+      } else {
+        setLoadings(false);
+        RunSold();
+        Toast.show({
+          text: m,
+          buttonText: 'Okay',
+          position: 'top',
+          type: 'danger',
+          duration: 5000,
+          style: Style,
+        });
+      }
+    });
+  };
+
+  const RunSold = () => {
+    setLoadings(true);
+    const request = HandleAllRequest(
+      'vendors/materials/sold-out?provider=vendor',
+      'get',
+      access_token,
+    );
+
+    request
+      .then(data => {
+        let s = data.status;
+        let m = data.message;
+        if (s) {
+          setSold(data.data);
+          setLoadings(false);
+        } else {
+          Toast.show({
+            text: m,
+            buttonText: 'Okay',
+            position: 'top',
+            type: 'danger',
+            duration: 5000,
+            style: Style,
+          });
+          setLoadings(false);
+        }
+      })
+      .catch(err => {
+        setLoadings(false);
+      });
+  };
 
   let navigation = useNavigation();
 
-  navigation.addListener('focus', () => {
+  const init = () => {
     RunSold();
-  });
+  };
+
+  useEffect(() => {
+    init();
+  }, []);
 
   const updateSearch = search => {
     let value = search;

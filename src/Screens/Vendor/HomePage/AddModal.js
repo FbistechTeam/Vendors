@@ -27,7 +27,7 @@ import Camera from '../../../../assets/camera.svg';
 import {InputData} from './inputData';
 import ImagePicker from 'react-native-image-picker';
 import {Toast} from 'native-base';
-import Instance from '../../../Api/Instance';
+import InstanceTwo from '../../../Api/InstanceTwo';
 import {Alert} from 'react-native';
 import {Button} from 'react-native-elements';
 
@@ -131,7 +131,7 @@ const AddModal = ({
       AddData.append('title', values.title);
       AddData.append('price_per_yard', values.price_per_yard);
       AddData.append('quantity_in_stock', values.quantity_in_stock);
-      const response = await Instance.post(
+      const response = await InstanceTwo.post(
         'vendors/materials/add?provider=vendor',
         AddData,
         {

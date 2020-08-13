@@ -31,6 +31,7 @@ import {Toast} from 'native-base';
 import {useSelector} from 'react-redux';
 import Instance, {HandleAllRequest} from '../../Api/Instance';
 import Logo from '../../../assets/Profile.svg';
+import InstanceTwo from '../../Api/InstanceTwo';
 
 const UpdateInfo = () => {
   const [first_name, setFirstName] = useState('');
@@ -70,12 +71,12 @@ const UpdateInfo = () => {
         if (s) {
           console.log(profiles);
           setProfile(profiles);
-          setStates(profiles.state.title);
-          setFirstName(profiles.first_name);
-          setLastName(profiles.last_name);
-          setAddress(profiles.address);
-          setPhone(profiles.phone);
-          setEmail(profiles.email);
+          setStates(profiles.state === null ? '' : profiles.state.title);
+          setFirstName(profiles.first_name === null ? '' : profiles.first_name);
+          setLastName(profiles.last_name === null ? '' : profiles.last_name);
+          setAddress(profiles.address === null ? '' : profiles.address);
+          setPhone(profiles.phone === null ? '' : profiles.phone);
+          setEmail(profiles.email === null ? '' : profiles.email);
           setLoading(false);
         } else {
           setLoading(false);
@@ -262,7 +263,7 @@ const UpdateInfo = () => {
     try {
       let AddData = new FormData();
       AddData.append('profile_pix', image);
-      const response = await Instance.post(
+      const response = await InstanceTwo.post(
         'vendors/profile/avatar/upload?provider=vendor',
         AddData,
         {
